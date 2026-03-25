@@ -73,7 +73,9 @@ After the first three answers, decide how many more questions to ask. Two to fou
 
 After the core intake questions, check for voice:
 
-**Auto-detect:** Check the `voices/` directory in this skill folder for any `.md` files. If a voice guide exists, ask: "I have a voice guide for [name]. Should the final output sound like [name], or stay voice-neutral?"
+**Auto-detect:** Check the `voices/` directory in this skill folder for any `.md` files. If one voice guide exists, ask: "I have a voice guide for [name]. Should the final output (a) sound like [name], (b) preserve the tone already in your input, or (c) stay voice-neutral?" If multiple voice guides exist, list them all and ask the user to choose -- or pick voice-neutral.
+
+If the user already said "keep my tone" or set intensity at 1-2 with tone-preservation language, skip the voice guide suggestion. "Keep my tone" means preserve the input's existing voice, not apply a voice guide.
 
 **No voice guide:** If no voice guide exists but the user mentions wanting their voice, inform them: "I can build a voice profile for you using /rewriter voice-analyze. It takes about 10 minutes and analyzes your transcripts, emails, and any other writing samples. Want to do that first, or proceed without voice matching?"
 
@@ -265,7 +267,11 @@ Read the voice guide file before starting. The voice guide contains layers: idea
 
 The Voice Agent is the final transformation. It takes the Editor's polished output and makes it sound like the person described in the voice guide. This agent runs LAST because voice is sovereign -- if the person's actual voice violates a Craftsman rule or a Scrub pattern, the voice wins.
 
-Pass the Voice Agent: the Editor's output, the full voice guide, and the user's context (purpose, audience, format).
+Pass the Voice Agent: the Editor's output, the full voice guide, the user's context (purpose, audience, format), and any global user rules from CLAUDE.md or system instructions.
+
+**Before transforming, resolve conflicts.** Scan the voice guide's word palette and sentence patterns against the Scrub's banned-pattern list. For each overlap (e.g., the person uses "here's the thing" which the Scrub would normally cut), check whether the voice guide provides a direct quote proving the person genuinely uses that construction. If the voice guide has a quote, the voice pattern wins. If it only asserts the pattern without a quote, defer to the Scrub.
+
+**Global user rules are absolute.** If the user's CLAUDE.md or system instructions contain blanket rules (e.g., "NEVER use em dashes"), those override both the Scrub AND the voice guide. Even if the person's source material contains em dashes, the Voice Agent must not reintroduce them. Global rules > voice guide > Scrub rules.
 
 The Voice Agent makes these specific transformations:
 
@@ -314,9 +320,17 @@ User wants to preserve their voice. If they said "keep my tone" during intake (o
 
 User disagrees with the rewrite. Show intermediate stages (Strategist output, Craftsman output, Scrub output, Voice output if applicable) so they can pinpoint where it went wrong. Knowing which stage to revisit saves time.
 
-Voice guide conflicts with Craftsman or Scrub rules. The Voice Agent wins. If a person's actual voice uses constructions that the Craftsman or Scrub would normally cut (e.g., they naturally use "here's the thing" or numbered lists), the voice guide takes precedence. Voice is sovereign over style rules.
+Voice guide conflicts with Craftsman or Scrub rules. The Voice Agent wins IF the voice guide provides a direct quote proving the person genuinely uses that construction. If the voice guide only asserts the pattern without evidence, defer to the Scrub. Global user rules (CLAUDE.md, system instructions) override everything -- including the voice guide.
 
 Voice guide doesn't exist yet. If the user wants voice matching but no guide exists, do NOT attempt to infer voice from the input text alone. Voice guides must be built through the voice analyzer workflow, which requires substantial source material. Offer to run /rewriter voice-analyze.
+
+User declines to build a voice guide. If offered voice-analyze and they decline, proceed with the pipeline as voice-neutral. Resume intake from where it left off (or proceed to dispatch if intake was complete).
+
+User cancels voice mid-pipeline. If the user sees an intermediate result and says "skip the voice" or "don't apply my voice," skip Step 4 and deliver the Editor's output from Step 3 as the final result.
+
+User requests a third-party voice. If the user says "rewrite this in [someone else]'s voice," check `voices/` for a matching guide. If none exists, offer to build one -- but clarify they'll need to provide source material for that person. Do not attempt to impersonate someone without a voice guide.
+
+Multiple voice guides exist. If the `voices/` directory contains more than one `.md` file, list all available voices during the Voice Check and let the user choose. Don't assume which one they want.
 
 Input is over 5,000 words. Apply the pipeline section by section. The Strategist identifies the structure first, then each section gets the full treatment.
 
@@ -338,13 +352,13 @@ In fast mode, YOU (the Editor) do everything inline. No sub-agents are dispatche
 
 1. **Read all reference files** at once: `references/pinker-clarity.md`, `references/heath-stickiness.md`, `references/klinkenborg-sentences.md`, `references/strunk-white-elements.md`, and `references/anti-ai-checklist.md`. If a voice guide is active, also read `voices/[name].md`.
 
-2. **Intake**: Same as Step 1, but you can be briefer. For very short inputs where the purpose is obvious (e.g., "rewrite this email"), skip the interview entirely and just confirm the format.
+2. **Intake**: Same as Step 1, but you can be briefer. For very short inputs where the purpose is obvious (e.g., "rewrite this email"), skip the context-gathering questions and just confirm the format. But always run the Voice Check if voice guides exist or the user mentioned voice -- the voice check is not optional even in fast mode.
 
 3. **Single-pass rewrite**: Apply all four stages in your head as you rewrite:
    - Strategist thinking: find the point, check structure, apply gap-and-fill
    - Craftsman thinking: sentence-level quality, rhythm, concrete language, kill transitions
    - Scrub thinking: scan for AI tells, cursed vocabulary, structural patterns
-   - Voice thinking (if active): apply the voice guide's patterns
+   - Voice thinking (if active): apply all six transformations from Step 4's Voice Agent section -- idea architecture, sentence patterns, word palette, register calibration, anti-pattern scrub, and slide voice (if applicable). Resolve Scrub conflicts the same way: voice guide patterns with direct-quote evidence win, unquoted assertions defer to the Scrub. Global user rules (CLAUDE.md) are absolute even in fast mode.
 
 4. **Deliver**: One clean output. No intermediate stages to show unless the user asks.
 

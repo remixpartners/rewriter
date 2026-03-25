@@ -68,15 +68,15 @@ Removes every pattern that flags text as AI-generated.
 
 Fetches the latest [Wikipedia guide to AI writing signs](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) (updated regularly as LLM behavior changes) and scans for: cursed vocabulary, negative parallelisms, rule-of-three lists, em dash overuse, editorial commentary, compulsive summaries, hedging pileups, promotional tone, copula avoidance, dangling significance, legacy inflation, vague attributions, elegant variation, and the "one of the most" formula.
 
-### Stage 4: Voice Layer (optional)
+### Stage 4: Editor pass
+
+Checks coherence (do paragraphs follow?), tone (does it sound like one voice?), completeness (did anything get lost?), precision (are claims specific?), and format compliance (right length, register, structure for the stated purpose). If voice is not active, this is the final output. If voice is active, passes to Stage 5.
+
+### Stage 5: Voice Layer (optional)
 
 Transforms the polished output into a specific person's voice.
 
-Reads a voice guide from `voices/[name].md` and applies the person's actual patterns: idea architecture, sentence rhythm, word palette, register calibration, and anti-patterns. Voice is sovereign -- if the person's real voice conflicts with Craftsman or Scrub rules, the voice wins.
-
-### Stage 5: Editor (final pass)
-
-Checks coherence (do paragraphs follow?), tone (does it sound like one voice?), completeness (did anything get lost?), precision (are claims specific?), and format compliance (right length, register, structure for the stated purpose).
+Reads a voice guide from `voices/[name].md` and applies the person's actual patterns: idea architecture, sentence rhythm, word palette, register calibration, and anti-patterns. Voice guide patterns with direct-quote evidence override Scrub rules. Global user rules (CLAUDE.md) override everything. After the Voice Layer, the Editor does one final verification scan before delivering.
 
 ## Voice matching
 
@@ -113,11 +113,11 @@ Why 1,500 words? Below that, all reference material (~35K tokens) plus input and
 
 > Tesla's revenue fell for the first time in company history in 2025. Full-year sales dropped to $94.8 billion from $97.7 billion. Q4 net income fell 61%, to $840 million.
 
-580 words became 250. Every fact survived. The filler didn't.
+67 words became 30. Every fact survived. The filler didn't.
 
 ## Reference files
 
-The skill includes five reference files that the sub-agents consult at their respective stages:
+The skill includes six reference files that the sub-agents consult at their respective stages:
 
 | File | Stage | Source |
 |---|---|---|

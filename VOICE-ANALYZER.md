@@ -84,21 +84,29 @@ Analyze across these dimensions. Use SPECIFIC QUOTES/EXAMPLES as evidence for ev
 - Front-loading vs. back-loading key information
 - Rhythm: staccato, flowing, or mixed? What's the pulse?
 
-### 3. WORD CHOICES & VOCABULARY
+### 3. PERSUASION PATTERNS (especially for sales/BD/pitch contexts)
+- How do they open a pitch or argument?
+- How do they establish credibility without bragging?
+- How do they handle objections or skepticism?
+- How do they create urgency without being pushy?
+- How do they close -- move toward action or next steps?
+- Persuasion mix: stories vs. data vs. demos vs. abstract theory?
+
+### 4. WORD CHOICES & VOCABULARY
 - Most frequently used words and phrases (especially distinctive ones)
 - Default register (casual, professorial, analytical, enthusiastic)
 - Jargon usage and domains the vocabulary draws from
-- Favorite metaphors and conceptual domains
+- Favorite metaphors -- catalog with name, description, deployment context, and direct quote for each
 - Words/phrases that are uniquely "theirs"
 
-### 4. VERBAL/WRITTEN HABITS
+### 5. VERBAL/WRITTEN HABITS
 - Filler words, hedging patterns, self-corrections
 - How they start and end thoughts
 - Humor: when, how, what kind?
 - Energy patterns: what makes them speed up or slow down?
 - Enthusiasm and agreement markers
 
-### 5. CONTEXT-SPECIFIC PATTERNS
+### 6. CONTEXT-SPECIFIC PATTERNS
 - How does this context differ from others?
 - What's unique to this mode of communication?
 - What stays the same regardless of context?
