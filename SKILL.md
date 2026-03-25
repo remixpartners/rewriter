@@ -1,27 +1,47 @@
 ---
 name: rewriter
-description: Rewrite any raw content into polished business prose through a three-stage editorial pipeline. Use when the user asks to "rewrite," "polish," "clean up," "tighten," "make this sound better," "turn this into something readable," "edit this for me," "make this professional," or "rewrite for LinkedIn/email/proposal." Also triggers on /rewriter. Designed for short-form business writing under ~5,000 words. Do NOT use for long-form documents, copyediting that should preserve the original author's voice, or pure formatting/layout tasks.
+description: Rewrite any raw content into polished business prose through an editorial pipeline with optional voice matching. Use when the user asks to "rewrite," "polish," "clean up," "tighten," "make this sound better," "turn this into something readable," "edit this for me," "make this professional," "rewrite in my voice," or "rewrite for LinkedIn/email/proposal." Also triggers on /rewriter. To build a voice profile, use /rewriter voice-analyze. Designed for short-form business writing under ~5,000 words. Fast mode (single-pass, no sub-agents) auto-activates for inputs under 1,500 words. Do NOT use for long-form documents or pure formatting/layout tasks.
 ---
 
 # Rewriter for Business Prose
 
 You are the Editor. You run the whole process. You talk to the user, gather context, dispatch sub-agents, and do the final professional edit yourself.
 
-Three sub-agents do the heavy lifting. A Strategist who finds the point. A Craftsman who rebuilds the sentences. An anti-AI Scrub agent who cleans the output. You orchestrate them and do the final quality pass.
+Up to four sub-agents do the heavy lifting. A Strategist who finds the point. A Craftsman who rebuilds the sentences. An anti-AI Scrub agent who cleans the output. And optionally, a Voice agent who transforms the final draft into a specific person's voice. You orchestrate them and do the final quality pass.
+
+For short inputs (under 1,500 words), Fast Mode runs everything as a single pass with no sub-agents.
 
 ```
          YOU (THE EDITOR)
-         ┌──────────────┐
-         │ 1. Intake     │  Talk to user, gather context
-         │ 2. Dispatch   │  Send to sub-agents in sequence
-         │ 3. Final edit │  Professional quality pass
-         └──────┬───────┘
+         ┌──────────────────┐
+         │ 0. Mode check     │  Fast mode or full pipeline?
+         │ 1. Intake         │  Talk to user, gather context
+         │ 2. Dispatch       │  Send to sub-agents in sequence
+         │ 3. Final edit     │  Professional quality pass
+         │ 4. Voice (opt.)   │  Apply user's voice guide
+         └──────┬───────────┘
                 │
-    ┌───────────┼───────────┐
-    ▼           ▼           ▼
-STRATEGIST  CRAFTSMAN  ANTI-AI SCRUB
-(sub-agent) (sub-agent) (sub-agent)
+    ┌───────────┼───────────┬──────────────┐
+    ▼           ▼           ▼              ▼
+STRATEGIST  CRAFTSMAN  ANTI-AI SCRUB  VOICE LAYER
+(sub-agent) (sub-agent) (sub-agent)  (sub-agent, optional)
 ```
+
+### Voice Analyzer (Sub-Skill)
+
+To build a voice profile for any person, read and follow `VOICE-ANALYZER.md` in this skill directory. The analyzer produces a voice guide file saved to `voices/[name].md`. Once a voice guide exists, Step 4 can apply it automatically.
+
+---
+
+## Step 0: Mode Check
+
+Before anything else, estimate the word count of the input.
+
+**If the input is under 1,500 words**, use **Fast Mode**. Skip to the Fast Mode section at the bottom of this document. Fast Mode runs the entire pipeline (Strategist + Craftsman + Scrub + Voice) as a single inline pass with no sub-agents. This saves 2-3 minutes of latency on short pieces where sub-agents add overhead without quality gain.
+
+**If the input is 1,500 words or more**, use the full pipeline below.
+
+Why 1,500 words? Below that threshold, all reference material (~35K tokens of instructions) plus the input and output fit comfortably in a single attention window. Above it, focused per-stage sub-agents produce noticeably better results because each stage can devote full attention to its job.
 
 ---
 
@@ -49,7 +69,17 @@ Their answer to question 3 sets the intensity for the pipeline. At 1-2, the Stra
 
 After the first three answers, decide how many more questions to ask. Two to four more, depending on clarity.
 
-If their intent is clear (you know the purpose, audience, desired register, and how much freedom you have), ask fewer. If it's ambiguous, ask more. Good follow-up questions depending on context:
+### Voice Check
+
+After the core intake questions, check for voice:
+
+**Auto-detect:** Check the `voices/` directory in this skill folder for any `.md` files. If a voice guide exists, ask: "I have a voice guide for [name]. Should the final output sound like [name], or stay voice-neutral?"
+
+**No voice guide:** If no voice guide exists but the user mentions wanting their voice, inform them: "I can build a voice profile for you using /rewriter voice-analyze. It takes about 10 minutes and analyzes your transcripts, emails, and any other writing samples. Want to do that first, or proceed without voice matching?"
+
+**User says "my voice" or "sound like me":** This always triggers voice matching. If a voice guide exists, use it. If not, offer to build one.
+
+If their intent is clear (you know the purpose, audience, desired register, voice preference, and how much freedom you have), ask fewer follow-up questions. If it's ambiguous, ask more. Good follow-up questions depending on context:
 
 "What tone are you going for? (Direct and confident? Measured and analytical? Warm and conversational?)"
 
@@ -159,7 +189,7 @@ Fetch the current text from:
 
 `https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing`
 
-Fetch instructions: `web_fetch` on Wikipedia URLs will likely fail or return incomplete results. Try these approaches in order: (1) If browser automation is available (Playwright, agent-browser), navigate directly and extract text. (2) Use `web_search` with the query `Wikipedia "Signs of AI writing" language tone vocabulary style` and pull from the top result or cached version. (3) Try the Wikipedia API: `https://en.wikipedia.org/w/api.php?action=parse&page=Wikipedia:Signs_of_AI_writing&prop=wikitext&format=json`. (4) If all attempts fail, use the summary in `references/anti-ai-checklist.md`. Always try the live fetch first. The guide is actively updated as LLM behavior changes and is now very comprehensive (~15,000 words). Focus on "Language and grammar," "Content," and "Style" sections.
+Fetch instructions: `web_fetch` on Wikipedia URLs will likely fail or return incomplete results. Try these approaches in order: (1) If browser automation is available (Playwright, agent-browser), navigate directly and extract text. (2) Use `web_search` with the query `Wikipedia "Signs of AI writing" language tone vocabulary style` and pull from the top result or cached version. (3) Try the Wikipedia API: `https://en.wikipedia.org/w/api.php?action=parse&page=Wikipedia:Signs_of_AI_writing&prop=wikitext&format=json`. (4) If all attempts fail, use the summary in `references/anti-ai-checklist.md`. Always try the live fetch first. The guide is actively updated as LLM behavior changes and is now ~15,000 words. Focus on "Language and grammar," "Content," and "Style" sections.
 
 If all fetch attempts fail, use the summary in `references/anti-ai-checklist.md`. Always try the live fetch first. The guide is actively updated as LLM behavior changes.
 
@@ -221,7 +251,56 @@ Precision. Are claims specific? Are examples real? Is anything vague where it sh
 
 Format compliance. If the user specified a format (email, LinkedIn post, proposal), verify the output matches. The right length, the right register, the right structure.
 
-Deliver the final output to the user.
+If voice matching is NOT active, deliver the final output to the user now. If voice IS active, pass to Step 4.
+
+---
+
+## Step 4: Voice Layer (Optional)
+
+This step runs only when the user requested voice matching during intake and a voice guide exists in `voices/[name].md`.
+
+Read the voice guide file before starting. The voice guide contains layers: idea architecture, sentence patterns, word palette, register dials, and anti-patterns.
+
+### Sub-Agent 4: The Voice Agent
+
+The Voice Agent is the final transformation. It takes the Editor's polished output and makes it sound like the person described in the voice guide. This agent runs LAST because voice is sovereign -- if the person's actual voice violates a Craftsman rule or a Scrub pattern, the voice wins.
+
+Pass the Voice Agent: the Editor's output, the full voice guide, and the user's context (purpose, audience, format).
+
+The Voice Agent makes these specific transformations:
+
+**Idea architecture.** Restructure argument flow to match the person's natural pattern. If they lead with examples before principles, reorder. If they use gap-and-fill tension, add it. If they build through accumulation rather than declaration, restructure.
+
+**Sentence patterns.** Match the person's sentence rhythm. If they write in short paragraphs with single-sentence thoughts, break up any remaining dense paragraphs. If they front-load, front-load. Match their typical sentence length distribution.
+
+**Word palette.** Replace generic words with the person's signature vocabulary. If the voice guide lists specific magnitude words ("bonkers" instead of "remarkable"), enthusiasm markers ("super" instead of "very"), or hedging patterns ("I think" instead of "arguably"), swap them in. But only where natural -- don't force signature words into every sentence.
+
+**Register calibration.** Check the voice guide's register dials for the specific output format (email, LinkedIn, proposal, etc.). Adjust formality, greeting style, sign-off, and warmth markers accordingly.
+
+**Anti-pattern scrub.** The voice guide lists things the person NEVER does. Scan for any that survived the prior stages. Remove em dashes if the person bans them. Remove corporate jargon if they avoid it. Fix sign-offs to match their actual patterns.
+
+**Slide voice.** If the output is a presentation or deck outline and the voice guide includes a slide voice section, apply those structural patterns (narrative arc, text density, visual conventions, slide-level patterns).
+
+#### Voice Agent: Core Principle
+
+The Voice Agent does NOT sand down the prior stages' work. It transforms it. If the Strategist restructured around a strong point, the Voice Agent keeps that point but delivers it the way the person would. If the Craftsman tightened sentences beautifully, the Voice Agent keeps the tightness but adjusts the rhythm and word choice.
+
+Think of it as: the Strategist finds what to say, the Craftsman finds how to say it well, the Scrub removes AI tells, and the Voice Agent makes it sound like a specific human said it.
+
+#### Voice Agent: Before and After
+
+Input (Editor's output, clean but voice-neutral):
+> Big consultancies sell AI strategy to the Fortune 500. The 30-employee manufacturer and the regional law firm get nothing. We spent two years working with 30 businesses in that gap. The work is not strategy decks. It is getting a five-person marketing team to use the tools before their next campaign ships.
+
+After the Voice Agent (applying a voice that leads with examples, uses casual warmth, and prefers "I think" framing):
+> So like, here's what we kept seeing. The big consulting firms are selling AI strategy to Fortune 500 companies. But the 30-person manufacturer? The regional law firm? Nobody's helping them. We've spent two years working with 30 businesses in that gap, and the work is not strategy decks. It's getting a five-person marketing team to actually use the tools before their next campaign ships. I think that's the part most people miss.
+
+After the Voice Agent (applying a different voice -- formal, analytical, leads with data):
+> Over a two-year period, we delivered AI implementation programs for 30 small and mid-market businesses. The consistent finding: strategy documents do not drive adoption. Direct team enablement does. A five-person marketing team adopting AI tools before their next campaign launch represents more value than a 50-page roadmap.
+
+The same polished input, two completely different voices. The voice guide controls the transformation.
+
+After the Voice Agent completes, YOU (the Editor) do one final scan: does it still hit the user's purpose and audience? Did the voice transformation lose anything critical? If so, restore it. Then deliver.
 
 ---
 
@@ -231,11 +310,49 @@ Input is already polished. If the input reads like finished prose with a clear p
 
 Input has no discernible point. If the Strategist can't find a Commander's Intent, come back to the user: "What's the one thing you want the reader to take away?" Don't invent a point on their behalf.
 
-User wants to preserve their voice. If they said "keep my tone" during intake (or set intensity at 1-2), the Craftsman tightens without imposing a new voice. Check during your final edit that the original personality survived.
+User wants to preserve their voice. If they said "keep my tone" during intake (or set intensity at 1-2), the Craftsman tightens without imposing a new voice. Check during your final edit that the original personality survived. NOTE: "keep my tone" and "use my voice" are different. "Keep my tone" means preserve the input's existing voice. "Use my voice" means apply the voice guide from Step 4.
 
-User disagrees with the rewrite. Show intermediate stages (Strategist output, Craftsman output, Scrub output) so they can pinpoint where it went wrong. Knowing which stage to revisit saves time.
+User disagrees with the rewrite. Show intermediate stages (Strategist output, Craftsman output, Scrub output, Voice output if applicable) so they can pinpoint where it went wrong. Knowing which stage to revisit saves time.
+
+Voice guide conflicts with Craftsman or Scrub rules. The Voice Agent wins. If a person's actual voice uses constructions that the Craftsman or Scrub would normally cut (e.g., they naturally use "here's the thing" or numbered lists), the voice guide takes precedence. Voice is sovereign over style rules.
+
+Voice guide doesn't exist yet. If the user wants voice matching but no guide exists, do NOT attempt to infer voice from the input text alone. Voice guides must be built through the voice analyzer workflow, which requires substantial source material. Offer to run /rewriter voice-analyze.
 
 Input is over 5,000 words. Apply the pipeline section by section. The Strategist identifies the structure first, then each section gets the full treatment.
+
+---
+
+## Fast Mode
+
+Fast Mode activates automatically when input is under 1,500 words. It runs the entire pipeline as a single inline pass with no sub-agents.
+
+### Why 1,500 Words?
+
+The sub-agent pipeline adds 2-3 minutes of latency (each agent reads reference files, processes, and returns). For a 500-word email or a 3-paragraph LinkedIn post, that overhead produces negligible quality improvement over a single focused pass.
+
+The math: all reference material is ~35K tokens of instructions. A 1,500-word input is ~2K tokens. The output is roughly the same length. Total: ~39K tokens, well within a single attention window. Beyond 1,500 words, the input starts competing with the reference material for attention, and focused per-stage passes produce measurably better results.
+
+### Fast Mode Execution
+
+In fast mode, YOU (the Editor) do everything inline. No sub-agents are dispatched. You assume each persona in sequence and produce the rewritten text.
+
+1. **Read all reference files** at once: `references/pinker-clarity.md`, `references/heath-stickiness.md`, `references/klinkenborg-sentences.md`, `references/strunk-white-elements.md`, and `references/anti-ai-checklist.md`. If a voice guide is active, also read `voices/[name].md`.
+
+2. **Intake**: Same as Step 1, but you can be briefer. For very short inputs where the purpose is obvious (e.g., "rewrite this email"), skip the interview entirely and just confirm the format.
+
+3. **Single-pass rewrite**: Apply all four stages in your head as you rewrite:
+   - Strategist thinking: find the point, check structure, apply gap-and-fill
+   - Craftsman thinking: sentence-level quality, rhythm, concrete language, kill transitions
+   - Scrub thinking: scan for AI tells, cursed vocabulary, structural patterns
+   - Voice thinking (if active): apply the voice guide's patterns
+
+4. **Deliver**: One clean output. No intermediate stages to show unless the user asks.
+
+Fast mode should feel instant to the user. Read refs, rewrite, deliver.
+
+### When to Override Fast Mode
+
+If the input is under 1,500 words but unusually complex (dense technical writing, multiple distinct sections, conflicting tones), you may choose to use the full pipeline anyway. Use judgment. The threshold is a default, not a rule.
 
 ---
 
@@ -244,3 +361,4 @@ Input is over 5,000 words. Apply the pipeline section by section. The Strategist
 Read `references/pinker-clarity.md` and `references/heath-stickiness.md` at the Strategist stage.
 Read `references/klinkenborg-sentences.md` and `references/strunk-white-elements.md` at the Craftsman stage. Strunk & White is the backbone -- Klinkenborg handles sentence rhythm, Strunk & White handles everything from word choice to paragraph structure.
 Read `references/anti-ai-checklist.md` at the Scrub stage only if the live Wikipedia fetch fails. The Scrub agent should also cross-reference the "Words and Expressions to Kill" section in `references/strunk-white-elements.md` -- it catches words like *utilize*, *facility*, *finalize*, *factor*, *thrust*, and *possess* that the AI-specific lists miss. Priority order: the Scrub's own cursed vocabulary list (line of first defense), then S&W bankrupt words (classic style violations), then the Wikipedia/anti-AI checklist (evolving AI-specific patterns).
+Read `voices/[name].md` at the Voice stage if voice matching is active.

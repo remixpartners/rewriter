@@ -3,3 +3,7 @@
 __pycache__/
 .env
 *.skill
+
+# Voice guides contain personal communication patterns -- keep out of public repos
+# Remove this line if you want to version-control voice guides
+voices/
