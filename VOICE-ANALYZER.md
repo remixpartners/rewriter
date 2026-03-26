@@ -1,8 +1,22 @@
 # Voice Analyzer
 
-Build a voice guide for any person by analyzing how they actually speak and write. The output is a structured voice profile saved to `voices/[name].md` that the rewriter's Voice Layer (Step 4) can apply.
+Build a voice guide for any person, publication, or brand by analyzing how they actually communicate. The output is a structured voice profile saved to `voices/[name].md` that the rewriter's Voice Layer (Step 4) can apply.
 
 This workflow requires substantial source material. Don't attempt to build a voice guide from a single email or a paragraph of writing. You need patterns, and patterns require volume.
+
+---
+
+## Step 0: Identify Voice Type
+
+Before gathering sources, determine what kind of voice you're building:
+
+| Voice Type | What It Is | Source Material | Naming Convention |
+|-----------|-----------|----------------|-------------------|
+| **Person** | How a specific individual speaks and writes | Transcripts, emails, slides, blog posts, social media | `voices/[firstname].md` |
+| **Publication** | The editorial style of a newsletter, blog, or content series | Published articles, editorial guidelines, style guides | `voices/[publication-name].md` |
+| **Brand** | How an organization communicates across channels | Marketing materials, about pages, past campaigns, brand guidelines | `voices/[brand-name].md` |
+
+The analysis framework below works for all three types. For **person voices**, follow it as written. For **publication and brand voices**, adapt the source types (Step 1), skip spoken-language analysis dimensions in the agent prompt (Step 2), and use the publication/brand compression table format in synthesis (Step 3).
 
 ---
 
@@ -10,7 +24,7 @@ This workflow requires substantial source material. Don't attempt to build a voi
 
 Ask the user what sources are available. Explain that more sources produce a better voice guide, and that different source types reveal different dimensions of voice.
 
-### Source Types (ranked by richness)
+### Source Types for Person Voices (ranked by richness)
 
 | Source | What It Reveals | Minimum Useful Volume |
 |--------|----------------|----------------------|
@@ -23,6 +37,18 @@ Ask the user what sources are available. Explain that more sources produce a bet
 | **Chat messages (Slack, Teams)** | Ultra-casual register, reaction patterns, how they collaborate async | 50+ messages in substantive threads |
 
 Tell the user: "The more varied the sources, the better the voice guide. Transcripts from different contexts (1:1 vs. group, selling vs. teaching, casual vs. formal) are especially valuable because they reveal what stays constant across contexts -- that's the core voice."
+
+### Source Types for Publication/Brand Voices
+
+| Source | What It Reveals | Minimum Useful Volume |
+|--------|----------------|----------------------|
+| **Published articles/posts** | Idea architecture, sentence rhythm, word palette, structural patterns, reader address style | 10+ articles of 500+ words each, ideally spanning 3+ months |
+| **Editorial/style guidelines** | Explicit rules, tone targets, banned vocabulary, formatting conventions | Any volume is valuable |
+| **About pages/brand copy** | Positioning voice, how they describe themselves, formality baseline | 2+ pages |
+| **Marketing materials** | Persuasion patterns, CTA style, urgency creation, credibility proof | 5+ pieces across channels |
+| **Social media accounts** | Compressed voice, hook patterns, audience engagement style | 20+ substantive posts |
+
+Tell the user: "For publications, variety within the publication matters. Articles on different topics, articles from different time periods, and articles at different levels of formality all help reveal what stays constant -- that's the core editorial voice."
 
 ### Organizing Sources
 

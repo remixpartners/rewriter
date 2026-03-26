@@ -1,8 +1,16 @@
 # Voice Guide Template
 
-Use this structure when creating voice guides from the Voice Analyzer. The Voice Agent (Step 4 of the rewriter) reads these files to transform polished prose into a specific person's voice.
+Use this structure when creating voice guides from the Voice Analyzer. The Voice Agent (Step 4 of the rewriter) reads these files to transform polished prose into a specific voice -- whether that's a person, a publication, or a brand.
+
+Voice guides work for three types of voices:
+
+- **Person voice:** How a specific individual speaks and writes (source: transcripts, emails, slides, blog posts)
+- **Publication voice:** The editorial style of a newsletter, blog, or content series (source: published articles, editorial guidelines)
+- **Brand voice:** How an organization communicates across channels (source: marketing materials, style guides, past campaigns)
 
 Every section should include specific examples and direct quotes from the analyzed source material. A voice guide without quotes is a guess. A voice guide with quotes is evidence.
+
+The template below is written in person-voice language ("this person"), but adapt the framing to match the voice type. For publications, "this person" becomes "this publication." For brands, "this person" becomes "this brand."
 
 ---
 
@@ -154,14 +162,23 @@ Things this person NEVER does. The Voice Agent must scrub these from output.
 
 ---
 
-## Spoken-to-Written Compression Table
+## Voice-Specific Compression Table
 
-How this person's speech maps to their writing. Critical for the Voice Agent.
+For **person voices**: How this person's speech maps to their writing. Critical for the Voice Agent.
 
 | Spoken Pattern | Written Equivalent |
 |---------------|-------------------|
 | [spoken habit] | [how it appears in writing, or "removed entirely"] |
 | [spoken habit] | [written equivalent] |
+
+For **publication/brand voices**: How generic business writing gets compressed in this voice. Maps common constructions to how this voice would express them.
+
+| Generic Business Writing | This Voice |
+|-------------------------|------------|
+| [common construction] | [how this voice handles it, or "deleted entirely"] |
+| [common construction] | [replacement pattern] |
+
+Omit whichever table doesn't apply.
 
 ---
 
@@ -182,7 +199,8 @@ How this person's speech maps to their writing. Critical for the Voice Agent.
 ## Notes for Voice Guide Authors
 
 - Every claim needs a quote. "Uses short sentences" without an example is useless to the Voice Agent.
-- The register dials section is where most of the detail lives. A voice guide that treats the person as having one mode is incomplete.
-- The spoken-to-written compression table is the single most useful section for the Voice Agent, because most rewriter inputs start as written text and the Voice Agent needs to know which spoken patterns to re-introduce and which to leave compressed.
+- The register dials section is where most of the detail lives. A voice guide that treats the voice as having one mode is incomplete.
+- The compression table is the single most useful section for the Voice Agent. For person voices, it maps spoken patterns to written equivalents. For publication voices, it maps generic business writing to this voice's distinctive patterns. Both serve the same purpose: showing the Voice Agent what to transform and how.
 - Anti-patterns matter as much as patterns. A voice that avoids em dashes, avoids corporate jargon, and avoids hedging pileups is as defined by its absences as its presences.
 - Update the "Last updated" date whenever the guide is refreshed. Voice guides older than 6 months should be flagged for refresh.
+- For publication voices, the header should include a **Voice type:** field ("Publication") and a **Primary author:** field if the publication has a consistent byline.

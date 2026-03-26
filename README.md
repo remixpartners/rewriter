@@ -74,24 +74,31 @@ Checks coherence (do paragraphs follow?), tone (does it sound like one voice?), 
 
 ### Stage 5: Voice Layer (optional)
 
-Transforms the polished output into a specific person's voice.
+Transforms the polished output into a specific voice -- a person, a publication, or a brand.
 
-Reads a voice guide from `voices/[name].md` and applies the person's actual patterns: idea architecture, sentence rhythm, word palette, register calibration, and anti-patterns. Voice guide patterns with direct-quote evidence override Scrub rules. Global user rules (CLAUDE.md) override everything. After the Voice Layer, the Editor does one final verification scan before delivering.
+Reads a voice guide from `voices/[name].md` and applies the voice's actual patterns: idea architecture, sentence rhythm, word palette, register calibration, and anti-patterns. Voice guide patterns with direct-quote evidence override Scrub rules. Global user rules (CLAUDE.md) override everything. After the Voice Layer, the Editor does one final verification scan before delivering.
 
 ## Voice matching
 
-The rewriter can write in anyone's voice -- if you build a voice guide first.
+The rewriter can write in any voice -- a person, a publication, or a brand -- if you build a voice guide first.
+
+### Voice types
+
+- **Person voice:** How a specific individual speaks and writes. Built from transcripts, emails, slides, blog posts.
+- **Publication voice:** The editorial style of a newsletter, blog, or content series. Built from published articles and editorial guidelines.
+- **Brand voice:** How an organization communicates. Built from marketing materials, style guides, and past campaigns.
 
 ### Building a voice guide
 
-Run `/rewriter voice-analyze` or tell Claude "build a voice profile for me." The Voice Analyzer walks you through:
+Run `/rewriter voice-analyze` or tell Claude "build a voice profile." The Voice Analyzer walks you through:
 
-1. **Gathering sources** -- transcripts, emails, slides, blog posts, journals, chat messages. More variety produces a better guide.
-2. **Dispatching analysis agents** -- parallel agents analyze your sources across different contexts (casual, sales, teaching, etc.)
-3. **Synthesis** -- findings merge into a structured voice guide covering idea architecture, sentence patterns, word palette, register dials, and anti-patterns.
-4. **Review** -- you read the guide and confirm it sounds like you.
+1. **Identify voice type** -- person, publication, or brand. This determines source types.
+2. **Gathering sources** -- for people: transcripts, emails, slides. For publications: articles, style guides. More variety produces a better guide.
+3. **Dispatching analysis agents** -- parallel agents analyze sources across dimensions (idea architecture, sentence patterns, word palette, etc.)
+4. **Synthesis** -- findings merge into a structured voice guide covering idea architecture, sentence patterns, word palette, register dials, and anti-patterns.
+5. **Review** -- you read the guide and confirm it captures the voice.
 
-The output is saved to `voices/[your-name].md`. Once it exists, the rewriter auto-detects it during intake.
+The output is saved to `voices/[name].md`. Once it exists, the rewriter auto-detects it during intake. Multiple voice guides can coexist -- the rewriter lists all available voices and lets you choose.
 
 ### Privacy
 
@@ -133,15 +140,21 @@ The skill includes six reference files that the sub-agents consult at their resp
 - **Input is already polished.** Skips the Strategist and Craftsman. Sends straight to the Scrub.
 - **Input has no discernible point.** Asks the user: "What's the one thing you want the reader to take away?"
 - **User wants to preserve their voice.** At intensity 1-2, the Craftsman tightens without imposing a new voice.
-- **User wants their voice applied.** If a voice guide exists in `voices/`, the Voice Layer runs after the Editor pass.
+- **User wants a specific voice applied.** If a voice guide exists in `voices/`, the Voice Layer runs after the Editor pass. Multiple guides are listed for the user to choose from.
 - **User disagrees with the rewrite.** Shows intermediate stages (Strategist, Craftsman, Scrub, Voice) so you can pinpoint where it went wrong.
 - **Input is over 5,000 words.** Applies the pipeline section by section.
-- **Voice guide conflicts with style rules.** Voice wins. If the person actually writes that way, the Voice Layer preserves it.
+- **Voice guide conflicts with style rules.** Voice wins. If the voice guide has direct-quote evidence that the voice genuinely uses a construction, the Voice Layer preserves it.
 
 ## Changelog
 
+### 1.2 (2026-03-25)
+- **Multi-voice types**: Voice guides now support persons, publications, and brands (not just individuals)
+- **Publication voice support**: Voice Analyzer handles article-based analysis for editorial/newsletter voices
+- **Voice guide template**: Updated with publication/brand compression tables and voice-type metadata
+- **Multiple voices**: Rewriter auto-detects and lists all guides in `voices/` during intake
+
 ### 1.1 (2026-03-24)
-- **Voice matching**: Voice Layer (Stage 4) transforms output into a specific person's voice using voice guides
+- **Voice matching**: Voice Layer (Stage 4) transforms output into a specific voice using voice guides
 - **Voice Analyzer**: Sub-skill (`VOICE-ANALYZER.md`) builds voice guides from transcripts, emails, slides, and other writing samples
 - **Fast mode**: Inputs under 1,500 words skip sub-agents, run the full pipeline as a single pass
 - **Voice guide template**: Structured template (`references/voice-guide-template.md`) for building voice profiles
