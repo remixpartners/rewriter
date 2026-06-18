@@ -12,13 +12,9 @@ The pipeline cuts word count by 40-60% with zero information loss. It does this 
 
 ## Install
 
-Download `rewriter.skill` from the [Releases](../../releases) page, then:
+**Claude Cowork (desktop/web app):** download `rewriter.zip` from the [latest release](../../releases/latest). In the app, go to **Customize > Skills**, remove any old version of rewriter, then upload `rewriter.zip` and toggle it on. Cowork installs a snapshot and does not auto-update, so re-upload to pick up new versions.
 
-```
-claude install-skill rewriter.skill
-```
-
-Or clone this repo and point Claude Code at the SKILL.md directly.
+**Claude Code (CLI):** clone this repo into `~/.claude/skills/rewriter/`, or point Claude Code at the folder, then restart your session. Skills load at session start.
 
 ## Usage
 
