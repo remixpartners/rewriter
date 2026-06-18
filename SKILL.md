@@ -29,7 +29,7 @@ STRATEGIST  CRAFTSMAN  ANTI-AI SCRUB  VOICE LAYER
 
 ### Voice Analyzer (Sub-Skill)
 
-To build a voice profile for any person, read and follow `VOICE-ANALYZER.md` in this skill directory. The analyzer produces a voice guide file saved to `voices/[name].md`. Once a voice guide exists, Step 4 can apply it automatically.
+To build a voice profile for any person, read and follow `VOICE-ANALYZER.md` in this skill directory. The analyzer produces a voice guide file and saves it where the rewriter can find it (see the Voice Check in Step 1 for the locations). Once a voice guide exists, Step 4 can apply it automatically.
 
 ---
 
@@ -73,7 +73,15 @@ After the first three answers, decide how many more questions to ask. Two to fou
 
 After the core intake questions, check for voice:
 
-**Auto-detect:** Check the `voices/` directory in this skill folder for any `.md` files. If one voice guide exists, ask: "I have a voice guide for [name]. Should the final output (a) sound like [name], (b) preserve the tone already in your input, or (c) stay voice-neutral?" If multiple voice guides exist, list them all and ask the user to choose -- or pick voice-neutral.
+**Auto-detect:** Look for voice guides (`.md` files) in these locations, in order:
+
+1. This skill's `voices/` folder.
+2. A shared library at `~/.claude/skills/voices/`, if it exists.
+3. A `voice-guides/` folder in your current working directory -- this is where Cowork users keep guides, because the skill's own folder can be reset between sessions.
+
+Ignore `README.md`, `EXAMPLE.md`, and any file beginning with `_` or `.` -- those are scaffolding, not voices. Collect the real guides found across all locations and de-duplicate by name.
+
+If exactly one real guide exists, ask: "I have a voice guide for [name]. Should the final output (a) sound like [name], (b) preserve the tone already in your input, or (c) stay voice-neutral?" If multiple voice guides exist, list them all and ask the user to choose -- or pick voice-neutral. If none exist (the folder holds only `EXAMPLE.md`, or is empty), treat it as no voice guide and use the "No voice guide" case below -- do not silently apply or invent a voice.
 
 If the user already said "keep my tone" or set intensity at 1-2 with tone-preservation language, skip the voice guide suggestion. "Keep my tone" means preserve the input's existing voice, not apply a voice guide.
 
@@ -259,7 +267,7 @@ If voice matching is NOT active, deliver the final output to the user now. If vo
 
 ## Step 4: Voice Layer (Optional)
 
-This step runs only when the user requested voice matching during intake and a voice guide exists in `voices/[name].md`.
+This step runs only when the user requested voice matching during intake and a voice guide was found during the Voice Check (Step 1).
 
 Read the voice guide file before starting. The voice guide contains layers: idea architecture, sentence patterns, word palette, register dials, and anti-patterns.
 
@@ -350,7 +358,7 @@ The math: all reference material is ~35K tokens of instructions. A 1,500-word in
 
 In fast mode, YOU (the Editor) do everything inline. No sub-agents are dispatched. You assume each persona in sequence and produce the rewritten text.
 
-1. **Read all reference files** at once: `references/pinker-clarity.md`, `references/heath-stickiness.md`, `references/klinkenborg-sentences.md`, `references/strunk-white-elements.md`, and `references/anti-ai-checklist.md`. If a voice guide is active, also read `voices/[name].md`.
+1. **Read all reference files** at once: `references/pinker-clarity.md`, `references/heath-stickiness.md`, `references/klinkenborg-sentences.md`, `references/strunk-white-elements.md`, and `references/anti-ai-checklist.md`. If a voice guide is active, also read the active voice guide file (from wherever the Voice Check found it).
 
 2. **Intake**: Same as Step 1, but you can be briefer. For very short inputs where the purpose is obvious (e.g., "rewrite this email"), skip the context-gathering questions and just confirm the format. But always run the Voice Check if voice guides exist or the user mentioned voice -- the voice check is not optional even in fast mode.
 
@@ -375,4 +383,4 @@ If the input is under 1,500 words but unusually complex (dense technical writing
 Read `references/pinker-clarity.md` and `references/heath-stickiness.md` at the Strategist stage.
 Read `references/klinkenborg-sentences.md` and `references/strunk-white-elements.md` at the Craftsman stage. Strunk & White is the backbone -- Klinkenborg handles sentence rhythm, Strunk & White handles everything from word choice to paragraph structure.
 Read `references/anti-ai-checklist.md` at the Scrub stage only if the live Wikipedia fetch fails. The Scrub agent should also cross-reference the "Words and Expressions to Kill" section in `references/strunk-white-elements.md` -- it catches words like *utilize*, *facility*, *finalize*, *factor*, *thrust*, and *possess* that the AI-specific lists miss. Priority order: the Scrub's own cursed vocabulary list (line of first defense), then S&W bankrupt words (classic style violations), then the Wikipedia/anti-AI checklist (evolving AI-specific patterns).
-Read `voices/[name].md` at the Voice stage if voice matching is active.
+Read the active voice guide file at the Voice stage if voice matching is active (the Voice Check in Step 1 lists where guides live).
