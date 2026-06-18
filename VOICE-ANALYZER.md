@@ -1,6 +1,6 @@
 # Voice Analyzer
 
-Build a voice guide for any person, publication, or brand by analyzing how they actually communicate. The output is a structured voice profile saved to `voices/[name].md` that the rewriter's Voice Layer (Step 4) can apply.
+Build a voice guide for any person, publication, or brand by analyzing how they actually communicate. The output is a structured voice profile, saved as a voice guide file that the rewriter's Voice Layer (Step 4) can apply (see Step 3 for where to save it).
 
 This workflow requires substantial source material. Don't attempt to build a voice guide from a single email or a paragraph of writing. You need patterns, and patterns require volume.
 
@@ -179,7 +179,15 @@ Once all analysis agents return, YOU (the Editor) synthesize their findings into
 
 ### Output Format
 
-Write the voice guide following the template in `references/voice-guide-template.md`. Save to `voices/[name].md`.
+Write the voice guide following the template in `references/voice-guide-template.md`.
+
+**Where to save it.** Use a lowercase, hyphenated name (`steven.md`, `acme-brand.md`):
+
+- **Default:** save to `voices/<name>.md` inside the rewriter skill folder. Create the `voices/` folder first if it does not exist.
+- **In Cowork (or any sandbox where the skill folder may be cleared between sessions):** save to `voice-guides/<name>.md` in the current workspace instead -- the workspace persists, the skill folder may not. Tell the user the exact path you saved to.
+- **Shared library (optional):** if the user keeps one voice library across skills, `~/.claude/skills/voices/<name>.md` also works -- the rewriter and the remix-proposal-writer skill both read from there.
+
+The rewriter's Voice Check (Step 1) scans all three locations, so a guide saved to any of them will be found. Real guides are gitignored by default, so they stay private.
 
 ---
 

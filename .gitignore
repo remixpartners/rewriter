@@ -4,8 +4,9 @@ __pycache__/
 .env
 *.skill
 
-# Voice guides contain personal communication patterns -- keep out of public repos
-# Remove these lines if you want to version-control voice guides
-# (both forms matter: `voices/` matches a real directory, `voices` matches a symlink)
-voices/
-voices
+# Voice guides capture personal communication patterns -- keep real guides out of the public repo.
+# The folder, its README, and EXAMPLE.md DO ship (so the skill works on install); every real *.md guide stays local.
+# To deliberately version-control a specific guide, force-add it: git add -f voices/<name>.md
+voices/*.md
+!voices/README.md
+!voices/EXAMPLE.md

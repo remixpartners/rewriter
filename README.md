@@ -76,7 +76,7 @@ Checks coherence (do paragraphs follow?), tone (does it sound like one voice?), 
 
 Transforms the polished output into a specific voice -- a person, a publication, or a brand.
 
-Reads a voice guide from `voices/[name].md` and applies the voice's actual patterns: idea architecture, sentence rhythm, word palette, register calibration, and anti-patterns. Voice guide patterns with direct-quote evidence override Scrub rules. Global user rules (CLAUDE.md) override everything. After the Voice Layer, the Editor does one final verification scan before delivering.
+Reads a voice guide and applies the voice's actual patterns: idea architecture, sentence rhythm, word palette, register calibration, and anti-patterns. Voice guide patterns with direct-quote evidence override Scrub rules. Global user rules (CLAUDE.md) override everything. After the Voice Layer, the Editor does one final verification scan before delivering.
 
 ## Voice matching
 
@@ -98,11 +98,11 @@ Run `/rewriter voice-analyze` or tell Claude "build a voice profile." The Voice 
 4. **Synthesis** -- findings merge into a structured voice guide covering idea architecture, sentence patterns, word palette, register dials, and anti-patterns.
 5. **Review** -- you read the guide and confirm it captures the voice.
 
-The output is saved to `voices/[name].md`. Once it exists, the rewriter auto-detects it during intake. Multiple voice guides can coexist -- the rewriter lists all available voices and lets you choose.
+The output is saved as a voice guide file the rewriter auto-detects during intake. It looks in the skill's `voices/` folder, a shared `~/.claude/skills/voices/` library, and a `voice-guides/` folder in your workspace (see [`voices/README.md`](voices/README.md)). Multiple voice guides can coexist -- the rewriter lists all available voices and lets you choose.
 
 ### Privacy
 
-Voice guides are gitignored by default. Your voice stays on your machine. The skill ships with the tools to build a voice guide, not with anyone's actual voice.
+Real voice guides are gitignored by default. Your voice stays on your machine. The skill ships the `voices/` folder with a README and one fictional `EXAMPLE.md` so voice matching works the moment you install it -- but never anyone's actual voice.
 
 ## Fast mode
 
@@ -146,6 +146,11 @@ The skill includes six reference files that the sub-agents consult at their resp
 - **Voice guide conflicts with style rules.** Voice wins. If the voice guide has direct-quote evidence that the voice genuinely uses a construction, the Voice Layer preserves it.
 
 ## Changelog
+
+### 1.2.1 (2026-06-18)
+- **Voice guides now ship and persist.** The whole `voices/` folder was gitignored, so it never traveled when the skill was installed -- voice matching silently fell back to neutral on any machine but the author's. The folder now ships with a README and a fictional `EXAMPLE.md`; only real guides stay gitignored.
+- **Cowork support.** Voice guides are discovered in three locations (the skill's `voices/`, a shared `~/.claude/skills/voices/`, and a `voice-guides/` folder in the workspace), and the Voice Analyzer saves to a persistent workspace location in Cowork, where the skill folder can be reset between sessions.
+- **No silent fallback.** When only the example is present, the rewriter treats it as "no voice guide" and offers to build one instead of quietly going voice-neutral.
 
 ### 1.2 (2026-03-25)
 - **Multi-voice types**: Voice guides now support persons, publications, and brands (not just individuals)
