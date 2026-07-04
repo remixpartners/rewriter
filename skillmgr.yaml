@@ -7,4 +7,6 @@ tags:
   - voice
   - editorial
   - content-generation
-harnesses: []
+requires: {}
+harnesses: [claude-code, cowork]
+cowork_viable: true
