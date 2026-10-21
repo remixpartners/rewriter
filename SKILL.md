@@ -153,7 +153,7 @@ What changed: the Strategist found the gap (underserved market) and led with it.
 
 Read `references/klinkenborg-sentences.md` and `references/strunk-white-elements.md` before starting. Klinkenborg teaches sentence rhythm and the art of noticing. Strunk & White provides the structural rules -- active voice, positive form, concrete language, omitting needless words, emphatic endings. The instructions below are the quick-hit checklist; the reference files are the deep versions.
 
-A sentence-level writer. Takes the Strategist's draft and rebuilds it word by word. The register is Harvard Business Review, not LinkedIn. Precise and authoritative, not punchy and promotional. The Craftsman earns the reader's trust through clarity, not energy.
+A sentence-level writer. Takes the Strategist's draft and rebuilds it word by word. Precise and authoritative, not punchy and promotional. The Craftsman earns the reader's trust through clarity, not energy.
 
 Pass the Craftsman the Strategist's output and the user's context.
 
@@ -177,7 +177,7 @@ No zombie nouns. "We decided," not "a decision was made." Verbs live. Nominaliza
 
 Concrete over abstract. Get words closer to the solidity of the world.
 
-The Craftsman's register: write like a sharp analyst, not a marketer. Prefer "the data shows" to "here's the thing." Prefer a clean observation to a hook. The reader is a peer who respects your thinking, not a prospect you're trying to capture. If a sentence could appear in a LinkedIn carousel, rewrite it.
+The Craftsman's register follows the format and voice the user asked for: an email reads like an email (short paragraphs, the length of a recap, not a report), a post like a post. With no format or voice given, the register is Harvard Business Review: write like a sharp analyst, not a marketer. Prefer "the data shows" to "here's the thing." Prefer a clean observation to a hook. The reader is a peer who respects your thinking, not a prospect you're trying to capture.
 
 At intensity 1-2, the Craftsman tightens without reimagining. At 4-5, the Craftsman can rebuild sentences from scratch. At 3, use judgment.
 
@@ -257,11 +257,11 @@ Tone. Does the piece sound like one voice? Check that the three sub-agent passes
 
 Completeness. Did anything important from the original input get lost in the pipeline? Check against the user's stated purpose from the intake.
 
-Precision. Are claims specific? Are examples real? Is anything vague where it should be concrete?
+Fidelity. Every number, name, quote, and specific claim traces to the input or the intake answers. Cut or flag anything that doesn't: an invented specific is worse than a vague true one. Where the input is concrete, stay concrete.
 
 Format compliance. If the user specified a format (email, LinkedIn post, proposal), verify the output matches. The right length, the right register, the right structure.
 
-If voice matching is NOT active, deliver the final output to the user now. If voice IS active, pass to Step 4.
+If voice matching is NOT active, run the Final Check below, then deliver. If voice IS active, pass to Step 4.
 
 ---
 
@@ -314,7 +314,15 @@ After the Voice Agent (applying a different voice -- formal, analytical, leads w
 
 The same polished input, two completely different voices. The voice guide controls the transformation.
 
-After the Voice Agent completes, YOU (the Editor) do one final scan: does it still hit the user's purpose and audience? Did the voice transformation lose anything critical? If so, restore it. Then deliver.
+After the Voice Agent completes, YOU (the Editor) do one final scan: does it still hit the user's purpose and audience? Did the voice transformation lose anything critical? If so, restore it. Then run the Final Check below, and deliver.
+
+## Final Check (every mode, last step)
+
+The Voice stage runs last and is allowed to override the Scrub, so the Scrub's fixes can come back. Check the text you are about to deliver, from this skill's folder:
+
+`python3 scripts/final_check.py <final text> --source <raw input>`
+
+It lists every dash, cursed word, "not X, it's Y" construction, and any number that is not in the source. "final_check: CLEAN" means deliver. For each hit, fix it, or keep it only when the active voice guide quotes the person using that exact construction (dashes never qualify when the user's rules ban them; the line that is exactly "--" before an email signature is not a dash). Every NUMBER hit is either in the intake answers or gets cut. Where scripts cannot run (claude.ai), make the same four checks by reading.
 
 ---
 
@@ -368,7 +376,7 @@ In fast mode, YOU (the Editor) do everything inline. No sub-agents are dispatche
    - Scrub thinking: scan for AI tells, cursed vocabulary, structural patterns
    - Voice thinking (if active): apply all six transformations from Step 4's Voice Agent section -- idea architecture, sentence patterns, word palette, register calibration, anti-pattern scrub, and slide voice (if applicable). Resolve Scrub conflicts the same way: voice guide patterns with direct-quote evidence win, unquoted assertions defer to the Scrub. Global user rules (CLAUDE.md) are absolute even in fast mode.
 
-4. **Deliver**: One clean output. No intermediate stages to show unless the user asks.
+4. **Final Check, then deliver**: Run the Final Check below on your output, then deliver one clean output. No intermediate stages to show unless the user asks.
 
 Fast mode should feel instant to the user. Read refs, rewrite, deliver.
 
