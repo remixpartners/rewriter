@@ -324,7 +324,7 @@ Tone. Does the piece sound like one voice? Check that the three sub-agent passes
 
 Completeness. Did anything important from the original input get lost in the pipeline? Check against the user's stated purpose from the intake.
 
-Fidelity. Every number, name, quote, and specific claim traces to the input or the intake answers. Cut or flag anything that doesn't: an invented specific is worse than a vague true one. Where the input is concrete, stay concrete.
+Fidelity. Every number, name, quote, and specific claim traces to the input or the intake answers. Cut or flag anything that doesn't: an invented specific is worse than a vague true one. That includes details you derive: a weekday, a date, a total, or a percentage computed from the source is new information, so verify it or leave the source's wording. Where the input is concrete, stay concrete.
 
 Overcompletion. Pipelines tend to finish the story the source left open. Compare the draft's certainty with the source's: a suspicion must not become a diagnosis, a pilot must not become a proven result, mixed evidence must not collapse into one tidy cause, and the ending must not claim a lesson or transformation the body didn't show. Restore the source's real level of certainty. A specific unfinished truth beats a neat false one.
 
