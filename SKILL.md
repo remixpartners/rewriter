@@ -1,6 +1,6 @@
 ---
 name: rewriter
-description: Rewrite any raw content into polished business prose through an editorial pipeline with optional voice matching. Use when the user asks to "rewrite," "polish," "clean up," "tighten," "make this sound better," "turn this into something readable," "edit this for me," "make this professional," "rewrite in my voice," or "rewrite for LinkedIn/email/proposal." Also triggers on /rewriter. To build a voice profile, use /rewriter voice-analyze. Designed for short-form business writing under ~5,000 words. Fast mode (single-pass, no sub-agents) auto-activates for inputs under 1,500 words. Do NOT use for long-form documents or pure formatting/layout tasks.
+description: Rewrite or critique business writing through an editorial pipeline with optional voice and audience matching. Use when the user asks to "rewrite," "polish," "clean up," "tighten," "make this sound better," "edit this for me," "make this professional," "rewrite in my voice," "rewrite for LinkedIn/email/proposal," or wants feedback on a draft ("critique this," "give me feedback," "what's wrong with this," "will this land with [reader]?"). Offers five critique modes (Inspire, Provoke, Clarify, Nudge, Polish) matched to how finished the draft is. Also triggers on /rewriter. To build a voice profile, use /rewriter voice-analyze. Three tiers: Fast (single pass, auto for inputs under 1,500 words), Standard (full multi-stage pipeline), and Full (adds a reviewer panel and debate; only on request). Designed for short-form business writing under ~5,000 words. Do NOT use for long-form documents or pure formatting/layout tasks.
 ---
 
 # Rewriter for Business Prose
@@ -9,13 +9,22 @@ You are the Editor. You run the whole process. You talk to the user, gather cont
 
 Up to four sub-agents do the heavy lifting. A Strategist who finds the point. A Craftsman who rebuilds the sentences. An anti-AI Scrub agent who cleans the output. And optionally, a Voice agent who transforms the final draft into a specific voice -- a person, a publication, or a brand. You orchestrate them and do the final quality pass.
 
-For short inputs (under 1,500 words), Fast Mode runs everything as a single pass with no sub-agents.
+For short inputs (under 1,500 words), the Fast tier runs everything as a single pass with no sub-agents.
+
+### Three separate dials
+
+Keep these apart; they answer different questions.
+
+- **Critique mode** (Inspire, Provoke, Clarify, Nudge, Polish): what kind of feedback the draft needs, based on how finished it is. Polish is a rewrite; the other four are critique that stops for the user's decision. See Step 0b and `references/critique-modes.md`.
+- **Tier** (Fast, Standard, Full): how much machinery runs. Fast is one pass, Standard is the multi-stage pipeline, Full adds a reviewer panel and debate. See Step 0a.
+- **Intensity** (1 to 5): how much change the user allows in a rewrite. Set during intake.
 
 ```
          YOU (THE EDITOR)
          ┌──────────────────┐
-         │ 0. Mode check     │  Fast mode or full pipeline?
-         │ 1. Intake         │  Talk to user, gather context
+         │ 0a. Tier check    │  Fast, Standard, or Full?
+         │ 0b. Mode check    │  Which kind of critique, or straight to Polish?
+         │ 1. Intake         │  Talk to user, gather context, voice + audience
          │ 2. Dispatch       │  Send to sub-agents in sequence
          │ 3. Final edit     │  Professional quality pass
          │ 4. Voice (opt.)   │  Apply user's voice guide
@@ -33,15 +42,44 @@ To build a voice profile for any person, read and follow `VOICE-ANALYZER.md` in 
 
 ---
 
-## Step 0: Mode Check
+## Step 0a: Tier Check
 
-Before anything else, estimate the word count of the input.
+Before anything else, pick the tier.
 
-**If the input is under 1,500 words**, use **Fast Mode**. Skip to the Fast Mode section at the bottom of this document. Fast Mode runs the entire pipeline (Strategist + Craftsman + Scrub + Voice) as a single inline pass with no sub-agents. This saves 2-3 minutes of latency on short pieces where sub-agents add overhead without quality gain.
+**Full tier** runs only when the user asks for it: "full mode," "full rigor," "dial it to 11," "run a panel," "have reviewers debate it." Never pick it on your own; it is the slowest and most expensive tier. Full is the Standard pipeline plus a reviewer panel on the draft before rewriting, an optional debate on the panel's disagreements, and a second cold read of the finished rewrite. Read `references/panel-and-debate.md`.
 
-**If the input is 1,500 words or more**, use the full pipeline below.
+Otherwise, estimate the word count of the input.
+
+**If the input is under 1,500 words**, use the **Fast tier**. For a rewrite, skip to the Fast Mode section at the bottom of this document. Fast runs the entire pipeline (Strategist + Craftsman + Scrub + Voice) as a single inline pass with no sub-agents. This saves 2-3 minutes of latency on short pieces where sub-agents add overhead without quality gain.
+
+**If the input is 1,500 words or more**, use the **Standard tier**: the full pipeline below, without the panel.
 
 Why 1,500 words? Below that threshold, all reference material (~35K tokens of instructions) plus the input and output fit comfortably in a single attention window. Above it, focused per-stage sub-agents produce noticeably better results because each stage can devote full attention to its job.
+
+If the user names a tier ("just do a quick pass," "run the full pipeline"), use it.
+
+---
+
+## Step 0b: Mode Check
+
+Decide whether the user wants a rewrite now (Polish) or critique first (Inspire, Provoke, Clarify, Nudge).
+
+**Go straight to Polish, with no mode question,** when the request uses a rewrite verb: "rewrite," "polish," "clean up," "tighten," "edit this," "make this professional," "turn this into a [post/email/proposal]." An explicit rewrite request beats any judgment about how mature the draft looks. Continue to Step 1 (or the Fast Mode section).
+
+**Offer a mode** when the user asks for feedback rather than a rewrite ("critique this," "give me feedback," "what do you think," "look at this," "will this work for [reader]?"), or when they hand over material without saying what they want and it is clearly not ready for a rewrite (raw notes with no point, several competing arguments).
+
+When you offer a mode:
+
+1. Read `references/critique-modes.md`.
+2. Explain the spectrum to the user, using the "say this to the user" block in that file. Do not assume they know the terms Inspire, Provoke, Clarify, Nudge, or Polish. Name all five, say in a line what each does, and show where they sit relative to each other: the first two open up options, the next two narrow them, Polish finishes.
+3. Recommend one mode for this draft, with one specific reason, and let the user choose.
+4. Run the chosen mode as that file describes. Check for an audience guide first (Step 1, Audience Check), since every mode judges the draft against the reader.
+
+If the user names a mode directly ("Clarify this," "nudge mode"), use it, and still give a one-line reminder of where it sits on the spectrum.
+
+Inspire, Provoke, Clarify, and Nudge end at a decision point and rewrite nothing until the user decides. When the user then wants a rewrite, continue to Step 1 as Polish, carrying their decisions forward: a confirmed core sentence from Clarify becomes the Strategist's Commander's Intent; picked nudges become instructions to the Editor.
+
+The tier still applies in critique modes. In the Fast tier, run the mode inline. In the Standard tier, you may dispatch the cold read and objections in Nudge as parallel sub-agents. In the Full tier, Nudge runs as the reviewer panel.
 
 ---
 
@@ -89,6 +127,25 @@ If the user already said "keep my tone" or set intensity at 1-2 with tone-preser
 
 **User says "my voice" or "sound like me":** This always triggers voice matching. If a voice guide exists, use it. If not, offer to build one.
 
+### Audience Check
+
+A voice guide controls how the writing sounds. An audience guide describes who reads it: their situation, what they already know, the terms they use, what they want, and what makes them skeptical. Look for audience guides (`.md` files) in these locations, in order:
+
+1. This skill's `audiences/` folder.
+2. A shared library at `~/.claude/skills/audiences/`, if it exists.
+3. An `audience-guides/` folder in your current working directory (the Cowork-safe location, same reason as voice guides).
+
+Ignore `README.md`, `EXAMPLE.md`, and files beginning with `_` or `.`.
+
+- If the user's stated audience clearly matches a guide (e.g. they said "SMB owners" and `smb-owners.md` exists), use it and say so in one line: "Using the SMB owners audience guide."
+- If guides exist but the match is unclear, list them and ask which applies, or none.
+- If no guide matches, proceed without one. A missing audience guide never blocks the work.
+- The audience named for this piece always wins. If the user says "this one is for their CFO," that narrows or overrides the guide.
+
+To build a new guide, copy `references/audience-guide-template.md` and fill it only with evidenced observations, each labeled with its basis.
+
+Pass the audience guide, when one is active, to the Strategist and to the Editor, and use it in every critique mode.
+
 If their intent is clear (you know the purpose, audience, desired register, voice preference, and how much freedom you have), ask fewer follow-up questions. If it's ambiguous, ask more. Good follow-up questions depending on context:
 
 "What tone are you going for? (Direct and confident? Measured and analytical? Warm and conversational?)"
@@ -121,7 +178,7 @@ Read `references/pinker-clarity.md` and `references/heath-stickiness.md` before 
 
 A senior communications strategist. Reads the input, finds what matters, restructures around it. Does not polish sentences.
 
-Pass the Strategist the user's context from the intake (purpose, audience, intensity level) along with the raw input.
+Pass the Strategist the user's context from the intake (purpose, audience, intensity level) along with the raw input. If an audience guide is active, pass it too: the Strategist checks assumed knowledge against its "what they know" section and shared-vocabulary table, and picks examples from the reader's real situations. If the user confirmed a core sentence in Clarify mode, pass it as the Commander's Intent and build around it.
 
 The Strategist asks six questions of the input before touching a word.
 
@@ -207,6 +264,16 @@ Pass the Scrub agent the Craftsman's output, the fetched Wikipedia guide (or fal
 
 The Scrub agent scans the draft for each of these patterns and fixes every instance found.
 
+Start with the structural tells, because they hide in plain words and a vocabulary scan misses them. Read the "Structural Tells" section of `references/anti-ai-checklist.md` every time, even when the Wikipedia fetch succeeds. In short:
+
+Argument self-commentary. Sentences that describe the argument instead of making it: grading their own evidence ("The good news is measurable"), announcing structure ("Then there's the cost side"), labeling a claim instead of stating it ("The open question is whether..."), or telling the reader what a quote proves before it speaks ("She put it best:"). Delete the sentence; if the argument still stands, it was scaffolding. Or turn it into the fact it points at.
+
+Portable profundity. Lines that would fit any keynote with the nouns swapped ("Speed is the new scale"). Reattach to the specific person, number, or decision, or cut.
+
+Corporate abstraction. "Alignment," "value creation," "capabilities," "solutions," unnamed "stakeholders." Replace with who does what.
+
+Then the word- and sentence-level patterns:
+
 Negative parallelisms. "It's not X, it's Y" and "Not just X, but Y." State the positive claim directly. Cut the theatrical contrast.
 
 Rule of three. Lists of exactly three adjectives, benefits, or takeaways. Vary list lengths. Use two, four, or one. Or don't list at all.
@@ -258,6 +325,10 @@ Tone. Does the piece sound like one voice? Check that the three sub-agent passes
 Completeness. Did anything important from the original input get lost in the pipeline? Check against the user's stated purpose from the intake.
 
 Fidelity. Every number, name, quote, and specific claim traces to the input or the intake answers. Cut or flag anything that doesn't: an invented specific is worse than a vague true one. Where the input is concrete, stay concrete.
+
+Overcompletion. Pipelines tend to finish the story the source left open. Compare the draft's certainty with the source's: a suspicion must not become a diagnosis, a pilot must not become a proven result, mixed evidence must not collapse into one tidy cause, and the ending must not claim a lesson or transformation the body didn't show. Restore the source's real level of certainty. A specific unfinished truth beats a neat false one.
+
+Audience. If an audience guide is active, read the draft once as that reader: does it define what they don't know, use their vocabulary, and back the claims they'd doubt?
 
 Format compliance. If the user specified a format (email, LinkedIn post, proposal), verify the output matches. The right length, the right register, the right structure.
 
@@ -316,13 +387,23 @@ The same polished input, two completely different voices. The voice guide contro
 
 After the Voice Agent completes, YOU (the Editor) do one final scan: does it still hit the user's purpose and audience? Did the voice transformation lose anything critical? If so, restore it. Then run the Final Check below, and deliver.
 
-## Final Check (every mode, last step)
+## Full Tier Additions
+
+In the Full tier, follow `references/panel-and-debate.md`: before Step 2, run the reviewer panel on the input and let the user pick which priorities to act on (and offer a debate on any disagreements). Pass their picks to the Strategist and Editor as instructions. After the final draft (and Voice, if active), run the Cold Reader and Skeptic once more on the output, fix anything that still stops the read, then run the Final Check.
+
+## Delivering a Polish rewrite
+
+After the rewritten text, give a short numbered list of the meaningful changes (cuts, moves, reframes, replaced phrases; not every comma), and tell the user they can undo any of them by number ("revert 2," "revert 1 and 3"). On a revert, restore that change exactly and re-run the Final Check. Keep the list outside the text itself, so the rewrite stays clean to copy or save.
+
+## Final Check (every tier, last step)
 
 The Voice stage runs last and is allowed to override the Scrub, so the Scrub's fixes can come back. Check the text you are about to deliver, from this skill's folder:
 
 `python3 scripts/final_check.py <final text> --source <raw input>`
 
 It lists every dash, cursed word, "not X, it's Y" construction, and any number that is not in the source. "final_check: CLEAN" means deliver. For each hit, fix it, or keep it only when the active voice guide quotes the person using that exact construction (dashes never qualify when the user's rules ban them; the line that is exactly "--" before an email signature is not a dash). Every NUMBER hit is either in the intake answers or gets cut. Where scripts cannot run (claude.ai), make the same four checks by reading.
+
+For critique output (Inspire, Provoke, Clarify, Nudge, panel synthesis), check your own prose for dashes and cursed words before delivering. Skip the number check there: critique quotes the draft and counts things, so new numbers are expected.
 
 ---
 
@@ -350,11 +431,17 @@ Multiple voice guides exist. If the `voices/` directory contains more than one `
 
 Input is over 5,000 words. Apply the pipeline section by section. The Strategist identifies the structure first, then each section gets the full treatment.
 
+User asked for a rewrite, but the draft has no point. Don't switch to a critique mode on your own. Ask the existing question ("What's the one thing you want the reader to take away?") and mention that Clarify mode can help find it if they'd like.
+
+User rejects the same kind of edit twice. Propose a one-line rule for their voice or audience guide (see "Learning from decisions" in `references/critique-modes.md`). Never write to a guide without a yes.
+
+User wants Full-tier rigor on a short piece. Honor it. The 1,500-word threshold picks between Fast and Standard; it never blocks Full.
+
 ---
 
 ## Fast Mode
 
-Fast Mode activates automatically when input is under 1,500 words. It runs the entire pipeline as a single inline pass with no sub-agents.
+Fast Mode (the Fast tier) activates automatically when input is under 1,500 words, unless the user asked for the Full tier. It runs the entire pipeline as a single inline pass with no sub-agents. This section covers Polish rewrites; a critique mode in the Fast tier runs inline as `references/critique-modes.md` describes.
 
 ### Why 1,500 Words?
 
@@ -366,17 +453,18 @@ The math: all reference material is ~35K tokens of instructions. A 1,500-word in
 
 In fast mode, YOU (the Editor) do everything inline. No sub-agents are dispatched. You assume each persona in sequence and produce the rewritten text.
 
-1. **Read all reference files** at once: `references/pinker-clarity.md`, `references/heath-stickiness.md`, `references/klinkenborg-sentences.md`, `references/strunk-white-elements.md`, and `references/anti-ai-checklist.md`. If a voice guide is active, also read the active voice guide file (from wherever the Voice Check found it).
+1. **Read all reference files** at once: `references/pinker-clarity.md`, `references/heath-stickiness.md`, `references/klinkenborg-sentences.md`, `references/strunk-white-elements.md`, and `references/anti-ai-checklist.md`. If a voice guide is active, also read the active voice guide file (from wherever the Voice Check found it). If an audience guide is active, read it too.
 
-2. **Intake**: Same as Step 1, but you can be briefer. For very short inputs where the purpose is obvious (e.g., "rewrite this email"), skip the context-gathering questions and just confirm the format. But always run the Voice Check if voice guides exist or the user mentioned voice -- the voice check is not optional even in fast mode.
+2. **Intake**: Same as Step 1, but you can be briefer. For very short inputs where the purpose is obvious (e.g., "rewrite this email"), skip the context-gathering questions and just confirm the format. But always run the Voice Check if voice guides exist or the user mentioned voice; the voice check is not optional even in fast mode. Run the Audience Check too; it costs one directory listing.
 
 3. **Single-pass rewrite**: Apply all four stages in your head as you rewrite:
    - Strategist thinking: find the point, check structure, apply gap-and-fill
    - Craftsman thinking: sentence-level quality, rhythm, concrete language, kill transitions
-   - Scrub thinking: scan for AI tells, cursed vocabulary, structural patterns
+   - Scrub thinking: structural tells first (argument self-commentary, portable profundity, corporate abstraction), then AI vocabulary and sentence patterns
+   - Editor thinking: fidelity and overcompletion (no certainty, cause, or ending the source didn't support)
    - Voice thinking (if active): apply all six transformations from Step 4's Voice Agent section -- idea architecture, sentence patterns, word palette, register calibration, anti-pattern scrub, and slide voice (if applicable). Resolve Scrub conflicts the same way: voice guide patterns with direct-quote evidence win, unquoted assertions defer to the Scrub. Global user rules (CLAUDE.md) are absolute even in fast mode.
 
-4. **Final Check, then deliver**: Run the Final Check below on your output, then deliver one clean output. No intermediate stages to show unless the user asks.
+4. **Final Check, then deliver**: Run the Final Check on your output, then deliver one clean output followed by the short numbered change list (see "Delivering a Polish rewrite"). No intermediate stages to show unless the user asks.
 
 Fast mode should feel instant to the user. Read refs, rewrite, deliver.
 
@@ -392,3 +480,6 @@ Read `references/pinker-clarity.md` and `references/heath-stickiness.md` at the 
 Read `references/klinkenborg-sentences.md` and `references/strunk-white-elements.md` at the Craftsman stage. Strunk & White is the backbone -- Klinkenborg handles sentence rhythm, Strunk & White handles everything from word choice to paragraph structure.
 Read `references/anti-ai-checklist.md` at the Scrub stage only if the live Wikipedia fetch fails. The Scrub agent should also cross-reference the "Words and Expressions to Kill" section in `references/strunk-white-elements.md` -- it catches words like *utilize*, *facility*, *finalize*, *factor*, *thrust*, and *possess* that the AI-specific lists miss. Priority order: the Scrub's own cursed vocabulary list (line of first defense), then S&W bankrupt words (classic style violations), then the Wikipedia/anti-AI checklist (evolving AI-specific patterns).
 Read the active voice guide file at the Voice stage if voice matching is active (the Voice Check in Step 1 lists where guides live).
+Read the active audience guide, if any, at intake; pass it to the Strategist and Editor (the Audience Check in Step 1 lists where guides live). `references/audience-guide-template.md` is the template for new ones.
+Read `references/critique-modes.md` whenever you offer or run a critique mode (Step 0b).
+Read `references/panel-and-debate.md` in the Full tier only.

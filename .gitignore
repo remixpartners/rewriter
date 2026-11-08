@@ -10,3 +10,7 @@ __pycache__/
 voices/*.md
 !voices/README.md
 !voices/EXAMPLE.md
+
+# Audience guides often draw on client material: same rule as voice guides.
+audiences/*.md
+!audiences/README.md

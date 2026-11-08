@@ -112,5 +112,37 @@ class VoiceGuideResolutionConsistencyTest(unittest.TestCase):
                                  f"{name} has regressed to a hardcoded absolute home path")
 
 
+EXPECTED_AUDIENCE_LOCATION_MARKERS = [
+    "audiences/",                   # 1. the skill's own audiences/ folder
+    "~/.claude/skills/audiences/",  # 2. the shared cross-skill library
+    "audience-guides/",             # 3. the Cowork-safe CWD folder
+]
+
+
+class AudienceGuideResolutionConsistencyTest(unittest.TestCase):
+    """Same guard as the voice-guide test, for the audience-guide search order that
+    SKILL.md (Step 1, Audience Check) and audiences/README.md both describe."""
+
+    def test_audiences_readme_ships(self):
+        self.assertTrue((REPO_ROOT / "audiences" / "README.md").is_file())
+
+    def test_skill_md_and_audiences_readme_list_the_same_locations(self):
+        skill_md = (REPO_ROOT / "SKILL.md").read_text()
+        readme = (REPO_ROOT / "audiences" / "README.md").read_text()
+        for marker in EXPECTED_AUDIENCE_LOCATION_MARKERS:
+            self.assertIn(marker, skill_md, f"SKILL.md is missing the audience-guide location {marker!r}")
+            self.assertIn(marker, readme, f"audiences/README.md is missing the audience-guide location {marker!r}")
+
+
+class ReferencedFilesExistTest(unittest.TestCase):
+    """Every references/*.md file SKILL.md points at must ship."""
+
+    def test_skill_md_references_resolve(self):
+        skill_md = (REPO_ROOT / "SKILL.md").read_text()
+        missing = [m for m in sorted(set(re.findall(r"references/[\w.-]+\.md", skill_md)))
+                   if not (REPO_ROOT / m).is_file()]
+        self.assertEqual(missing, [], f"SKILL.md references missing files: {missing}")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -56,6 +56,20 @@ Elegant variation. AI avoids repeating a word by cycling through synonyms: the c
 
 ---
 
+## Structural Tells (run these before the word-level scan)
+
+These survive a clean vocabulary pass because they use plain words. Several are adapted from the structural-overcompletion guide in Every's compound-writing project (MIT; see README credits). Unlike the rest of this file, this section is not a fallback: the Scrub always applies it, even when the live Wikipedia fetch succeeds.
+
+Argument self-commentary. The prose stops making its argument and starts describing it. Four forms: grading its own evidence ("The good news is measurable." "The most striking finding:"), announcing its structure ("Then there's the cost side." "That's only half the story."), labeling a claim instead of making it ("The open question is whether..." "One caveat deserves a flag."), and telling the reader what a quote proves before the quote speaks ("She put it best:"). Two tests, either one enough: delete the sentence and see whether the argument still stands; check whether the sentence's subject is the piece itself (the story, the picture, the takeaway, the case, the evidence). Fix by deleting, or by turning the commentary into the fact it gestures at: "Six weeks of data can't settle it" instead of "The open question is." Keep real adjudication: "The pricing change moved revenue; the redesign didn't" is a claim about the world and stays.
+
+Portable profundity. A line that could move into any keynote or LinkedIn post with only the topic nouns swapped: polished equations ("Speed is the new scale"), universal lessons drawn from one example, quotable inversions, final lines that restate the paragraph in a loftier register. Reattach it to the named person, number, or decision. If specificity kills it, cut it.
+
+Corporate abstraction. Nouns that sound like strategy but point at nothing: "alignment," "value creation," "operational excellence," "capabilities," "solutions," "stakeholders" with no one named. Replace with who does what, or cut.
+
+Overcompletion. AI drafts finish the story the source left unfinished. Watch for: certainty inflation (a suspicion becomes a diagnosis, a pilot becomes a proven result); causal closure (one tidy cause explains every example, though the source had mixed evidence); invented connective tissue (motives, timelines, or outcomes that make the narrative flow but aren't in the source); and over-resolved endings (a transformation, lesson, or callback the body didn't earn). Restore the source's actual level of certainty. Prefer a specific unfinished truth to a neat false one. End one step before the draft wants to.
+
+---
+
 ## Final Check
 
 After the pattern scan, read the entire draft once more as a skeptical reader.
