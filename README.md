@@ -44,6 +44,8 @@ The first two open up options, the next two narrow them, and Polish finishes. Th
 - **Standard**: the full multi-stage pipeline below. Automatic at 1,500 words and up.
 - **Full**: Standard plus a reviewer panel (Strategist, Craftsman, Scrub, Cold Reader, Skeptic, Plain-English Reader, Voice Keeper), an optional debate where reviewers disagree, and a second cold read of the result. Only when you ask ("full mode," "dial it to 11").
 
+Step-by-step detail for each tier is in [How each tier runs](#how-each-tier-runs).
+
 **Audience guides.** Alongside voice guides, the rewriter can load an audience guide: who the reader is, what they know, the terms they use, what they want, and what makes them skeptical. See `audiences/README.md` and `references/audience-guide-template.md`.
 
 **Intensity levels:**
@@ -126,9 +128,60 @@ The output is saved as a voice guide file the rewriter auto-detects during intak
 
 Real voice guides are gitignored by default. Your voice stays on your machine. The skill ships the `voices/` folder with a README and one fictional `EXAMPLE.md` so voice matching works the moment you install it, but never anyone's actual voice.
 
-## Why three tiers
+## How each tier runs
 
-Fast is automatic under 1,500 words: the Editor runs every stage inline as a single pass, with no sub-agents. Below that size, all the reference material (about 35K tokens) plus the input and output fit in one attention window, so splitting the work adds time without adding quality. Above it, focused per-stage sub-agents (Standard) do better. Full adds seven reviewers who each read the draft for one thing, an optional debate where they disagree, and a second cold read of the result. It costs more and takes longer, so it runs only when you ask.
+Every run, in every tier, starts and ends the same way:
+
+- **Start:** the rewriter picks the tier, then the mode (a plain "rewrite this" goes straight to Polish). It offers a short intake (purpose, audience, how much change you want), looks for a voice guide and an audience guide, and asks which to use if more than one fits.
+- **End:** the Final Check script scans the finished text for dashes, cursed words, "not X, it's Y" constructions, and numbers that aren't in your source. A Polish rewrite then arrives with a numbered list of the meaningful changes, and you can undo any of them by number ("revert 2").
+
+What happens in between depends on the tier.
+
+### Fast (automatic under 1,500 words)
+
+One pass, no sub-agents. The rewriter does all the work itself in a single sitting:
+
+1. Reads every reference file at once (Pinker, Heath, Klinkenborg, Strunk & White, the anti-AI checklist), plus the voice and audience guides if active.
+2. Keeps intake brief. For an obvious job like "rewrite this email," it may skip the questions and just confirm the format. The voice and audience checks still run.
+3. Rewrites once, applying every stage's thinking as it goes: find the point and fix the structure (Strategist), tighten sentences and rhythm (Craftsman), remove structural and word-level AI tells (Scrub), check every fact against the source and avoid overcompletion (Editor), and apply the voice guide if one is active.
+4. Runs the Final Check and delivers one clean draft plus the change list. No intermediate drafts unless you ask.
+
+Why 1,500 words: below that, all the reference material (about 35K tokens) plus your input and the output fit comfortably in one attention window, so splitting the work adds two or three minutes without adding quality. For a short but dense piece (technical, several sections, mixed tones) the rewriter may choose Standard anyway.
+
+A critique mode in the Fast tier also runs inline, in one pass.
+
+### Standard (automatic at 1,500 words and up)
+
+The full pipeline, with each stage run by its own focused sub-agent so it can give the job full attention. Each stage produces a complete draft that feeds the next:
+
+1. **Strategist** finds the point and restructures around it, without touching sentences. Uses the audience guide and, if you ran Clarify first, your confirmed one-sentence core idea.
+2. **Craftsman** rebuilds the sentences: active voice, concrete words, no needless words or transitions, varied rhythm.
+3. **Anti-AI Scrub** fetches the live Wikipedia guide, runs the structural checks, then the word-level scan.
+4. **Editor pass** (the rewriter itself) checks coherence, tone, completeness, fidelity to the source, overcompletion, the audience, and format.
+5. **Voice Layer** (only if a voice guide is active) applies the voice, followed by one more verification scan.
+
+Then the Final Check and the change list. If you disagree with the result, you can ask to see each stage's draft to find where it went wrong. In critique modes, Standard can run Nudge's cold read and objections as parallel sub-agents.
+
+### Full (only when you ask: "full mode," "run a panel," "dial it to 11")
+
+Everything in Standard, plus a reviewer panel before the rewrite and a second check after it. It is the slowest and most expensive tier, so the rewriter never picks it on its own.
+
+1. **Panel proposal.** The rewriter proposes four to six reviewers suited to this draft, with a reason for each and a note on who it's leaving out, and waits for you to confirm. The seven available reviewers:
+   - **Strategist:** one clear, concrete point, pitched at what the reader knows.
+   - **Craftsman:** sentence economy, rhythm, active verbs.
+   - **Scrub:** AI tells, including the structural ones.
+   - **Cold Reader:** your target reader's first read, in order, noting where they stumble, doubt, or drift.
+   - **Skeptic:** a smart outsider who extends no goodwill: objections, unsupported claims, insider shorthand.
+   - **Plain-English Reader:** a capable non-expert flagging jargon and undefined terms.
+   - **Voice Keeper:** only with a voice guide; does it sound like that person or publication?
+2. **Parallel review.** Each reviewer reads the draft separately, with only its own reference material, and returns quoted passages, problems, suggested fixes, and severity.
+3. **Synthesis.** The rewriter combines the reviews into: issues several reviewers agree on; tensions where they disagree (both positions, and what's at stake); single-reviewer insights worth keeping; a numbered priority list; and the one hard question the reviewers circled without asking.
+4. **Your decision.** You pick which priorities to act on, by number, and settle the tensions.
+5. **Debate (optional, only if you say yes).** For each tension, each reviewer sees the other side's argument and concedes, holds, or offers a compromise, for up to three rounds. Each tension ends resolved, at a stalemate, or with a proposal on the table. Anything unresolved comes back to you; the debate informs your call and never makes it.
+6. **Rewrite.** The Standard pipeline runs with your decisions as instructions.
+7. **Second cold read.** The Cold Reader and Skeptic read the finished draft once more, and anything that still stops the read gets fixed before the Final Check and change list.
+
+In critique modes, Full runs Nudge as this reviewer panel.
 
 ## Example
 
