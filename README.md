@@ -115,7 +115,7 @@ The rewriter can write in any voice (a person, a publication, or a brand) if you
 Run `/rewriter voice-analyze` or tell Claude "build a voice profile." The Voice Analyzer walks you through:
 
 1. **Identify voice type**: person, publication, or brand. This determines source types.
-2. **Gathering sources**: for people: transcripts, emails, slides. For publications: articles, style guides. More variety produces a better guide.
+2. **Gathering sources**: transcripts, emails, and slides for people. For publications: articles, style guides. More variety produces a better guide.
 3. **Dispatching analysis agents**: parallel agents analyze sources across dimensions (idea architecture, sentence patterns, word palette, etc.)
 4. **Synthesis**: findings merge into a structured voice guide covering idea architecture, sentence patterns, word palette, register dials, and anti-patterns.
 5. **Review**: you read the guide and confirm it captures the voice.
@@ -179,7 +179,7 @@ The skill includes nine reference files that the sub-agents consult at their res
 - **Learning loop.** When you reject the same kind of edit twice, the rewriter proposes a rule for your voice or audience guide and writes nothing without your yes.
 
 ### 1.2.1 (2026-06-18)
-- **Voice guides now ship and persist.** The whole `voices/` folder was gitignored, so it never traveled when the skill was installed, so voice matching silently fell back to neutral on any machine but the author's. The folder now ships with a README and a fictional `EXAMPLE.md`; only real guides stay gitignored.
+- **Voice guides now ship and persist.** The whole `voices/` folder was gitignored, so it never traveled when the skill was installed. Voice matching silently fell back to neutral on any machine but the author's. The folder now ships with a README and a fictional `EXAMPLE.md`; only real guides stay gitignored.
 - **Cowork support.** Voice guides are discovered in three locations (the skill's `voices/`, a shared `~/.claude/skills/voices/`, and a `voice-guides/` folder in the workspace), and the Voice Analyzer saves to a persistent workspace location in Cowork, where the skill folder can be reset between sessions.
 - **No silent fallback.** When only the example is present, the rewriter treats it as "no voice guide" and offers to build one instead of quietly going voice-neutral.
 
