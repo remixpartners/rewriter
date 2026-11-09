@@ -59,38 +59,34 @@ Step-by-step detail for each tier is in [How each tier runs](#how-each-tier-runs
 Every run starts and ends the same way. The middle depends on the tier. Critique modes other than Polish stop after intake with feedback and wait for your decision.
 
 ```mermaid
-flowchart TD
-    IN(["Your draft"]) --> T["Pick the tier and the mode"]
-    T --> I["Intake: purpose, audience, how much change<br/>Find voice and audience guides"]
-    I -. "Inspire, Provoke,<br/>Clarify, or Nudge" .-> K["Feedback only<br/>You decide what happens next"]
+flowchart LR
+    IN(["Your draft"]) --> T["Tier + mode"] --> I["Intake<br/>purpose, audience,<br/>voice + audience guides"]
+    I -. "critique<br/>mode" .-> K["Feedback only<br/>you decide next"]
     I --> F1
     I --> S1
     I --> P1
 
-    subgraph FAST ["FAST: automatic under 1,500 words"]
-        F1["One pass by the Editor<br/>Strategist, Craftsman, Scrub, Editor,<br/>and Voice thinking applied together"]
+    subgraph FAST ["FAST · under 1,500 words"]
+        direction LR
+        F1["One inline pass<br/>all five stages at once"]
     end
 
-    subgraph STANDARD ["STANDARD: automatic at 1,500 words and up"]
-        S1["1. Strategist<br/>finds the point"] --> S2["2. Craftsman<br/>rebuilds sentences"]
-        S2 --> S3["3. Anti-AI Scrub<br/>removes AI tells"]
-        S3 --> S4["4. Editor pass<br/>coherence, fidelity, audience"]
-        S4 --> S5["5. Voice Layer<br/>if a voice guide is active"]
+    subgraph STANDARD ["STANDARD · 1,500 words and up"]
+        direction LR
+        S1["Strategist"] --> S2["Craftsman"] --> S3["Anti-AI<br/>Scrub"] --> S4["Editor<br/>pass"] --> S5["Voice<br/>if active"]
     end
 
-    subgraph FULL ["FULL: only when you ask"]
-        P1["Reviewer panel<br/>4 to 6 reviewers read in parallel"] --> P2["Synthesis<br/>agreements, tensions, priorities"]
-        P2 --> P3{"You pick<br/>priorities"}
-        P3 -. "if you ask" .-> P4["Debate on tensions"]
-        P4 -.-> P5
-        P3 --> P5["Standard pipeline, steps 1 to 5,<br/>with your decisions"]
-        P5 --> P6["Second cold read<br/>Cold Reader and Skeptic"]
+    subgraph FULL ["FULL · only when you ask"]
+        direction LR
+        P1["Reviewer<br/>panel"] --> P2["Synthesis"] --> P3{"You pick<br/>priorities"}
+        P3 -. "optional" .-> P4["Debate"] -.-> P5
+        P3 --> P5["Standard<br/>pipeline"] --> P6["Second<br/>cold read"]
     end
 
-    F1 --> Z["Final Check script<br/>dashes, cursed words, new numbers"]
+    F1 --> Z["Final<br/>Check"]
     S5 --> Z
     P6 --> Z
-    Z --> OUT(["Rewrite plus numbered change list<br/>undo any change by number"])
+    Z --> OUT(["Rewrite +<br/>change list"])
 ```
 
 Each stage is described below. For the step-by-step version of each tier, see [How each tier runs](#how-each-tier-runs).
