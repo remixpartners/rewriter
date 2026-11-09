@@ -56,21 +56,40 @@ Step-by-step detail for each tier is in [How each tier runs](#how-each-tier-runs
 
 ## The pipeline
 
+Every run starts and ends the same way. The middle depends on the tier. Critique modes other than Polish stop after intake with feedback and wait for your decision.
+
+```mermaid
+flowchart LR
+    IN(["Your draft"]) --> T["Tier + mode"] --> I["Intake<br/>purpose, audience,<br/>voice + audience guides"]
+    I -. "critique<br/>mode" .-> K["Feedback only<br/>you decide next"]
+    I --> F1
+    I --> S1
+    I --> P1
+
+    subgraph FAST ["FAST · under 1,500 words"]
+        direction LR
+        F1["One inline pass<br/>all five stages at once"]
+    end
+
+    subgraph STANDARD ["STANDARD · 1,500 words and up"]
+        direction LR
+        S1["Strategist"] --> S2["Craftsman"] --> S3["Anti-AI<br/>Scrub"] --> S4["Editor<br/>pass"] --> S5["Voice<br/>if active"]
+    end
+
+    subgraph FULL ["FULL · only when you ask"]
+        direction LR
+        P1["Reviewer<br/>panel"] --> P2["Synthesis"] --> P3{"You pick<br/>priorities"}
+        P3 -. "optional" .-> P4["Debate"] -.-> P5
+        P3 --> P5["Standard<br/>pipeline"] --> P6["Second<br/>cold read"]
+    end
+
+    F1 --> Z["Final<br/>Check"]
+    S5 --> Z
+    P6 --> Z
+    Z --> OUT(["Rewrite +<br/>change list"])
 ```
-         THE EDITOR (you)
-         +--------------------+
-         | 0. Tier + mode     |  Fast/Standard/Full; which mode
-         | 1. Intake          |  Context, voice, audience
-         | 2. Dispatch        |  Run stages in sequence
-         | 3. Final edit      |  Coherence, tone, completeness
-         | 4. Voice (opt.)    |  Apply user's voice guide
-         +--------+-----------+
-                  |
-    +--------+----+-----+-----------+
-    v        v          v           v
-STRATEGIST  CRAFTSMAN  ANTI-AI   VOICE LAYER
-                       SCRUB     (optional)
-```
+
+Each stage is described below. For the step-by-step version of each tier, see [How each tier runs](#how-each-tier-runs).
 
 ### Stage 1: Strategist
 
