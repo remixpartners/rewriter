@@ -1,12 +1,18 @@
 # Rewriter
 
-A Claude Code skill that rewrites raw content into clean business prose -- with optional voice matching. Four editing stages run in sequence: a Strategist finds the point, a Craftsman rebuilds the sentences, an Anti-AI Scrub removes machine-generated style, and a Voice agent (optional) transforms the output into a specific person's voice. You orchestrate them as the Editor and do the final quality pass.
+A skill for Claude Code and Claude Cowork that rewrites raw content into clean business prose, or critiques a draft without rewriting it. It can match a specific voice (yours, a publication's, a brand's) and aim at a specific reader through an audience guide.
 
-For short inputs (under 1,500 words), Fast Mode runs everything as a single pass with no sub-agents.
+Three separate dials control a run:
+
+- **Mode**: what kind of help you want. Five critique modes run on a spectrum from wide open to finished: Inspire, Provoke, Clarify, Nudge, and Polish (the full rewrite).
+- **Tier**: how much machinery runs. Fast (one pass), Standard (the full editing pipeline), or Full (adds a reviewer panel and a debate).
+- **Intensity**: how far a rewrite departs from your draft, from 1 (light polish) to 5 (rebuilt from scratch).
+
+The editing pipeline itself has five stages: a Strategist finds the point, a Craftsman rebuilds the sentences, an Anti-AI Scrub removes machine-generated style, the Editor checks coherence and fidelity to the source, and an optional Voice Layer applies a voice guide.
 
 ## What it does
 
-You give it rough text -- notes from a call, a first draft, a ChatGPT dump, anything. It returns prose that reads like a human wrote it for Harvard Business Review. Or, if you've built a voice guide, it returns prose that reads like *you* wrote it.
+You give it rough text: notes from a call, a first draft, a ChatGPT dump, anything. It returns prose that reads like a human wrote it for Harvard Business Review. Or, if you've built a voice guide, it returns prose that reads like *you* wrote it.
 
 The pipeline cuts word count by 40-60% with zero information loss. It does this by finding the buried lead, restructuring around it, tightening every sentence, and killing the vocabulary and patterns that mark AI-generated text.
 
@@ -51,8 +57,8 @@ The first two open up options, the next two narrow them, and Polish finishes. Th
 ```
          THE EDITOR (you)
          +--------------------+
-         | 0. Mode check      |  Fast mode or full pipeline?
-         | 1. Intake          |  Gather context, check for voice
+         | 0. Tier + mode     |  Fast/Standard/Full; which mode
+         | 1. Intake          |  Context, voice, audience
          | 2. Dispatch        |  Run stages in sequence
          | 3. Final edit      |  Coherence, tone, completeness
          | 4. Voice (opt.)    |  Apply user's voice guide
@@ -74,7 +80,7 @@ Draws on Steven Pinker's classic style (orient the reader's gaze toward somethin
 
 Rebuilds sentences word by word. The register is sharp analyst, not marketer.
 
-Draws on Verlyn Klinkenborg's sentence-level craft and Strunk & White's structural rules -- active voice, positive form, concrete language, omit needless words, emphatic endings. Kills transitions, kills zombie nouns, varies sentence rhythm.
+Draws on Verlyn Klinkenborg's sentence-level craft and Strunk & White's structural rules: active voice, positive form, concrete language, omit needless words, emphatic endings. Kills transitions, kills zombie nouns, varies sentence rhythm.
 
 ### Stage 3: Anti-AI Scrub
 
@@ -82,19 +88,21 @@ Removes every pattern that flags text as AI-generated.
 
 Fetches the latest [Wikipedia guide to AI writing signs](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) (updated regularly as LLM behavior changes) and scans for: cursed vocabulary, negative parallelisms, rule-of-three lists, em dash overuse, editorial commentary, compulsive summaries, hedging pileups, promotional tone, copula avoidance, dangling significance, legacy inflation, vague attributions, elegant variation, and the "one of the most" formula.
 
+Before the word-level scan it runs four structural checks that a clean vocabulary pass misses: prose that comments on its own argument ("The good news is measurable"), lines that could drop into any keynote, corporate nouns that point at nothing, and overcompletion, where the draft finishes a story the source left unfinished.
+
 ### Stage 4: Editor pass
 
-Checks coherence (do paragraphs follow?), tone (does it sound like one voice?), completeness (did anything get lost?), precision (are claims specific?), and format compliance (right length, register, structure for the stated purpose). If voice is not active, this is the final output. If voice is active, passes to Stage 5.
+Checks coherence (do paragraphs follow?), tone (does it sound like one voice?), completeness (did anything get lost?), precision (are claims specific?), and format compliance (right length, register, structure for the stated purpose). It also checks fidelity: any fact, number, date, weekday, or total that is not in the source gets cut, and when an audience guide is active, it reads the draft as that reader. A small script (`scripts/final_check.py`) flags dashes, cursed words, "not X, it's Y" constructions, and numbers that don't appear in the source. If voice is not active, this is the final output. If voice is active, passes to Stage 5.
 
 ### Stage 5: Voice Layer (optional)
 
-Transforms the polished output into a specific voice -- a person, a publication, or a brand.
+Transforms the polished output into a specific voice: a person, a publication, or a brand.
 
 Reads a voice guide and applies the voice's actual patterns: idea architecture, sentence rhythm, word palette, register calibration, and anti-patterns. Voice guide patterns with direct-quote evidence override Scrub rules. Global user rules (CLAUDE.md) override everything. After the Voice Layer, the Editor does one final verification scan before delivering.
 
 ## Voice matching
 
-The rewriter can write in any voice -- a person, a publication, or a brand -- if you build a voice guide first.
+The rewriter can write in any voice (a person, a publication, or a brand) if you build a voice guide first.
 
 ### Voice types
 
@@ -106,23 +114,21 @@ The rewriter can write in any voice -- a person, a publication, or a brand -- if
 
 Run `/rewriter voice-analyze` or tell Claude "build a voice profile." The Voice Analyzer walks you through:
 
-1. **Identify voice type** -- person, publication, or brand. This determines source types.
-2. **Gathering sources** -- for people: transcripts, emails, slides. For publications: articles, style guides. More variety produces a better guide.
-3. **Dispatching analysis agents** -- parallel agents analyze sources across dimensions (idea architecture, sentence patterns, word palette, etc.)
-4. **Synthesis** -- findings merge into a structured voice guide covering idea architecture, sentence patterns, word palette, register dials, and anti-patterns.
-5. **Review** -- you read the guide and confirm it captures the voice.
+1. **Identify voice type**: person, publication, or brand. This determines source types.
+2. **Gathering sources**: transcripts, emails, and slides for people. For publications: articles, style guides. More variety produces a better guide.
+3. **Dispatching analysis agents**: parallel agents analyze sources across dimensions (idea architecture, sentence patterns, word palette, etc.)
+4. **Synthesis**: findings merge into a structured voice guide covering idea architecture, sentence patterns, word palette, register dials, and anti-patterns.
+5. **Review**: you read the guide and confirm it captures the voice.
 
-The output is saved as a voice guide file the rewriter auto-detects during intake. It looks in the skill's `voices/` folder, a shared `~/.claude/skills/voices/` library, and a `voice-guides/` folder in your workspace (see [`voices/README.md`](voices/README.md)). Multiple voice guides can coexist -- the rewriter lists all available voices and lets you choose.
+The output is saved as a voice guide file the rewriter auto-detects during intake. It looks in the skill's `voices/` folder, a shared `~/.claude/skills/voices/` library, and a `voice-guides/` folder in your workspace (see [`voices/README.md`](voices/README.md)). Multiple voice guides can coexist; the rewriter lists all available voices and lets you choose.
 
 ### Privacy
 
-Real voice guides are gitignored by default. Your voice stays on your machine. The skill ships the `voices/` folder with a README and one fictional `EXAMPLE.md` so voice matching works the moment you install it -- but never anyone's actual voice.
+Real voice guides are gitignored by default. Your voice stays on your machine. The skill ships the `voices/` folder with a README and one fictional `EXAMPLE.md` so voice matching works the moment you install it, but never anyone's actual voice.
 
-## Fast mode
+## Why three tiers
 
-Inputs under 1,500 words skip the sub-agent pipeline entirely. The Editor runs all four stages inline as a single pass. Same quality, 2-3 minutes faster.
-
-Why 1,500 words? Below that, all reference material (~35K tokens) plus input and output fit in a single attention window. Above it, focused per-stage sub-agents produce better results.
+Fast is automatic under 1,500 words: the Editor runs every stage inline as a single pass, with no sub-agents. Below that size, all the reference material (about 35K tokens) plus the input and output fit in one attention window, so splitting the work adds time without adding quality. Above it, focused per-stage sub-agents (Standard) do better. Full adds seven reviewers who each read the draft for one thing, an optional debate where they disagree, and a second cold read of the result. It costs more and takes longer, so it runs only when you ask.
 
 ## Example
 
@@ -169,10 +175,11 @@ The skill includes nine reference files that the sub-agents consult at their res
 - **Three tiers.** Fast (one pass), Standard (full pipeline), Full (adds a reviewer panel, optional debate, and a second cold read; only on request).
 - **Audience guides.** A new input next to voice guides, found in three locations like voices, with a template that requires a basis for every observation and a shared-vocabulary section.
 - **New structural AI tells.** Argument self-commentary, portable profundity, corporate abstraction, and overcompletion (certainty inflation, tidy causes, unearned endings) in the Scrub and the Editor's fidelity check.
+- **Fidelity for derived facts.** Dates, weekdays, and totals the rewriter works out itself now count as new facts and must trace to the source. `scripts/final_check.py` flags numbers that are not in the source.
 - **Learning loop.** When you reject the same kind of edit twice, the rewriter proposes a rule for your voice or audience guide and writes nothing without your yes.
 
 ### 1.2.1 (2026-06-18)
-- **Voice guides now ship and persist.** The whole `voices/` folder was gitignored, so it never traveled when the skill was installed -- voice matching silently fell back to neutral on any machine but the author's. The folder now ships with a README and a fictional `EXAMPLE.md`; only real guides stay gitignored.
+- **Voice guides now ship and persist.** The whole `voices/` folder was gitignored, so it never traveled when the skill was installed. Voice matching silently fell back to neutral on any machine but the author's. The folder now ships with a README and a fictional `EXAMPLE.md`; only real guides stay gitignored.
 - **Cowork support.** Voice guides are discovered in three locations (the skill's `voices/`, a shared `~/.claude/skills/voices/`, and a `voice-guides/` folder in the workspace), and the Voice Analyzer saves to a persistent workspace location in Cowork, where the skill folder can be reset between sessions.
 - **No silent fallback.** When only the example is present, the rewriter treats it as "no voice guide" and offers to build one instead of quietly going voice-neutral.
 
@@ -198,11 +205,16 @@ The skill includes nine reference files that the sub-agents consult at their res
 
 MIT. See [LICENSE](LICENSE).
 
-## Credits
+## Acknowledgements
 
-- **Modes of Critique.** The five mode names (Inspire, Provoke, Clarify, Nudge, Polish) and the idea of matching feedback to a draft's maturity come from the Modes of Critique framework developed at IDEO Chicago around 2016. The descriptions, prompts, and procedures in this skill are original.
-- **Every's compound-writing.** The audience guide template, the panel and debate workflows, the cold-reader and objection checks, the lede-placement test, and the structural AI tells (argument self-commentary, overcompletion) are adapted from [EveryInc/compound-writing](https://github.com/EveryInc/compound-writing) by Every, used under the MIT License. The full notice is in [licenses/compound-writing-MIT.txt](licenses/compound-writing-MIT.txt).
+This skill stands on other people's thinking. Our thanks to:
+
+- **IDEO Chicago**, where the Modes of Critique framework was developed around 2016. The five mode names (Inspire, Provoke, Clarify, Nudge, Polish) and the idea of matching feedback to how finished a draft is come from that work. The descriptions, prompts, and procedures here are our own. [ideo.com](https://www.ideo.com)
+- **[Every](https://every.to)** and its [compound-writing](https://github.com/EveryInc/compound-writing) project. The audience guide template, the panel and debate workflows, the cold-reader and objection checks, the lede-placement test, and the structural AI tells (argument self-commentary, overcompletion) are adapted from it under the MIT License. The full notice is in [licenses/compound-writing-MIT.txt](licenses/compound-writing-MIT.txt).
+- **Katie Parrott**, whose "Compound Writing" talk at Every's Thesis conference (November 2026) prompted the critique modes and audience guides in version 1.3.
+- **The editors of [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)**, a guide the Anti-AI Scrub fetches live on every run.
+- **The writers on our shelf:** Steven Pinker (*The Sense of Style*), Chip and Dan Heath (*Made to Stick*), Verlyn Klinkenborg (*Several Short Sentences About Writing*), and William Strunk Jr. and E. B. White (*The Elements of Style*). The reference files summarize their ideas in our words; read the books.
 
 ## Built by
 
-[Remix Partners](https://remixpartners.ai) -- we help companies turn generative AI from sideline experiments into growth engines.
+[Remix Partners](https://remixpartners.ai). We help companies turn generative AI from sideline experiments into growth engines.
